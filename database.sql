@@ -1,0 +1,12 @@
+CREATE TABLE gift (
+	id INT PRIMARY KEY AUTO_INCREMENT NOT NULL,
+    name VARCHAR(255) NOT NULL,
+	photoPath VARCHAR(255) NOT NULL,
+    userViews INT DEFAULT 0,
+    reating FLOAT,
+    appreciators INT DEFAULT 0,
+    addDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+	creatorId INT NOT NULL,
+    adminId INT NOT NULL,
+    tags VARCHAR(255) NOT NULL
+)
