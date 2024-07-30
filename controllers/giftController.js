@@ -75,16 +75,21 @@ const putGift = async(req, res) => {
 }
 
 // апдейт рейтинга подарка
-// const putGiftReating = async(req, res) => {
-//     try{
-//         const reating = 4.2
-//         const appretiatiors = 5
+const putGiftReating = async(req, res) => {
+    try{
+        const reating = 4.2
+        const appretiatiors = 5
 
-//         // (4.2 + 5(новая оценка)) / 6 (5+новая оценка) = (новый рейтинг)
-//     } catch(error){
-//         res.status(500).json({massage: "ERROR WHITE UPDATING DATA " + error})
-//     }
-// }
+        // ДОБАВЛЕНИЕ НОВОЙ ОЦЕНКИ
+        // (4.2*5 + 5(новая оценка)) / 5+1(новый пользователь) = (новая оценка)
+
+        // ПЕРЕОЦЕНИВАНИЕ
+        // (4.2*5 - 1(старая оценка) + 4(новая оценка)) / 5 = (новая оценка)
+
+    } catch(error){
+        res.status(500).json({massage: "ERROR WHITE UPDATING DATA " + error})
+    }
+}
 
 // удаление подарка по айди
 const deleteGift = async (req, res) => {
