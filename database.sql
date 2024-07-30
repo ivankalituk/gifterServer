@@ -10,3 +10,10 @@ CREATE TABLE gift (
     adminId INT NOT NULL,
     tags VARCHAR(255) NOT NULL
 )
+
+CREATE TABLE report (
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    gift_id INT NOT NULL
+)

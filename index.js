@@ -11,6 +11,7 @@ app.use('/uploads', express.static('uploads'))
 
 // Контроллеры
 const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift} = require('./controllers/giftController')
+const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -50,7 +51,13 @@ app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получеп
 app.put('/gift', putGift)                                       //обновление подарка НЕГОТОВОы
 app.delete('/gift/:gift_id', deleteGift)                        //удаление подарка по айди
 
+// CRUD для репорта
+app.post('/report', createReport)                               //создание репорта
+app.get('/report', getAllReports)                               //получение всех репортов
+app.get('/report/:report_id', getReportById)                    //получение репорта по его айди
+app.delete('/report/:report_id', deleteReport)                  //удаление репорта
 
+// 
 
 app.listen(port, (error) => {
     if (error){
