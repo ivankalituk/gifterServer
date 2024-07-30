@@ -17,3 +17,13 @@ CREATE TABLE report (
     content VARCHAR(255) NOT NULL,
     gift_id INT NOT NULL
 )
+
+CREATE TABLE suggest (
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL,
+    content VARCHAR(255) NOT NULL,
+    tags VARCHAR(255),
+    addDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+	name VARCHAR(255) NOT NULL,
+    photoPath VARCHAR(255)
+)
