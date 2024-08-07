@@ -13,6 +13,8 @@ app.use('/uploads', express.static('uploads'))
 const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift} = require('./controllers/giftController')
 const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
+const {getUserData} = require('./controllers/userController')
+
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -63,6 +65,9 @@ app.post('/suggest', createSuggest)                               //создан
 app.get('/suggest', getAllSuggests)                               //получение всех саггестов
 app.get('/suggest/:suggest_id', getSuggestById)                   //получение саггеста по его айди
 app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
+
+app.get('/user/:access_token', getUserData)                        //получение пользователя по его токену
+
 
 app.listen(port, (error) => {
     if (error){
