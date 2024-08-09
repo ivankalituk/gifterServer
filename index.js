@@ -66,7 +66,7 @@ app.get('/suggest', getAllSuggests)                               //получе
 app.get('/suggest/:suggest_id', getSuggestById)                   //получение саггеста по его айди
 app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
 
-app.get('/user/:access_token', getUserData)                        //получение пользователя по его токену
+app.post('/user', getUserData)                        //получение пользователя по его токену
 
 
 app.listen(port, (error) => {

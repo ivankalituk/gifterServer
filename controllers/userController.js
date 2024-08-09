@@ -1,5 +1,8 @@
 const mysql = require('mysql2/promise')
 
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client('913924371455-887ehm4755o1rnmdnfur3cc2abm5ub3a.apps.googleusercontent.com');
+
 const db = mysql.createPool({
     host: 'localhost',
     user: 'root',
@@ -8,29 +11,25 @@ const db = mysql.createPool({
 })
 
 // получение данных по токену
-const checkUserTocken = async (access_token) => {
-    try{
-        const response = await axios.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${access_token}`);
-        return response
-    } catch {
-        return {data: {expires_in: -1}}
-    }
-}
-
 const getUserData = async(req, res) => {
-    try{
-        const {access_token} = req.params.access_token
-        const tocken_data = await checkUserTocken(access_token)
-        const tocken_time = tocken_data.data.expires_in
+    try{        
+        const {access_token} = req.body
 
-        // if (tocken_time > 0){
-        //     const rows = await db.execute('SELECT * FROM users WHERE user_email = ?', [tocken_data.data.email])
-        //     res.stats(200).json({active: true, userData: rows[0]})
-        // } else {
-        //     res.status(200).json({active: false})
-        // }
+        // получение данных от гугл по токену
+        const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
+            headers: {
+                'Authorization': `Bearer ${access_token}`
+            }
+        });
 
-        res.status(200).json({access_token: access_token, data: tocken_data})
+        const userInfo = await userInfoResponse.json();
+        
+        // если почта была зарегестрированна, то получаем данные, если нет - то создаём и получаем их
+
+        
+        
+
+        res.status(200).json({email: userInfo.email})
     } catch(error){
         res.status(500).json('ERROR WHILE GETING DATA ' + error)
     }
