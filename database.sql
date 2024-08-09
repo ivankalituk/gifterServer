@@ -27,3 +27,11 @@ CREATE TABLE suggest (
 	name VARCHAR(255) NOT NULL,
     photoPath VARCHAR(255)
 )
+
+CREATE TABLE users ( 
+    id INT AUTO_INCREMENT NOT NULL PRIMARY KEY, 
+    nickname VARCHAR(255) NOT NULL, 
+    imgPath VARCHAR(255), 
+    role INT NOT NULL, 
+    email VARCHAR(255) NOT NULL 
+)
