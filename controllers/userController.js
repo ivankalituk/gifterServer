@@ -10,6 +10,7 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
+
 // получение данных по токену
 const getUserData = async(req, res) => {
     try{        
@@ -21,22 +22,22 @@ const getUserData = async(req, res) => {
                 'Authorization': `Bearer ${access_token}`
             }
         });
-
+        
         const userInfo = await userInfoResponse.json();
         
         // если почта была зарегестрированна, то получаем данные, если нет - то создаём и получаем их
 
         let rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
-        console.log(rows[0])
 
         if(rows[0].length === 0){
             await db.execute('INSERT INTO users (nickname, imgPath, role, email) VALUES (?, ?, ?, ?)', [userInfo.name, userInfo.picture, 0, userInfo.email])
             rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
         }
 
-        res.status(200).json(rows[0][0])
+        // res.status(200).json(rows[0][0])
     } catch(error){
         res.status(500).json('ERROR WHILE GETING DATA ' + error)
+        return({id: null, nickname: null, imgPath: null, role: null, email: null})  //НЕ УВЕРЕН ЧТО СРАБОТАЕТ
     }
 
 }
