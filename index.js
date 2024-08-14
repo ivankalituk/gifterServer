@@ -14,7 +14,7 @@ const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId
 const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
 const {getUserData} = require('./controllers/userController')
-
+const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -48,7 +48,7 @@ db.getConnection().then((connection) => {
 // CRUD для подарка
 app.post('/gift', createGift)                                   //создание подарка
 app.get('/gift', getAllGifts)                                   //получение всех подарков
-app.get('/gift/tags', getTagedGifts)                            //получение подарков по тегам
+app.post('/gift/tags', getTagedGifts)                            //получение подарков по тегам
 app.get('/gift/:gift_id', getGiftsById)                         //получение подарка по его айди
 app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получепние подарка по айди его создателя
 app.put('/gift', putGift)                                       //обновление подарка НЕГОТОВОы
@@ -66,8 +66,14 @@ app.get('/suggest', getAllSuggests)                               //получе
 app.get('/suggest/:suggest_id', getSuggestById)                   //получение саггеста по его айди
 app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
 
+// CRUD для пользователя
 app.post('/user', getUserData)                        //получение пользователя по его токену
 
+
+// CRUD для тегов
+app.post('/tag', craeteTag)   
+app.get('/tag', getAllTags)  
+app.post('/tagName', getTagByInput)  
 
 app.listen(port, (error) => {
     if (error){

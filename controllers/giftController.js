@@ -35,9 +35,18 @@ const getAllGifts = async(req, res) => {
 // получение всех подарков по тегам
 const getTagedGifts = async(req, res) => {
     try{
-        const tags = req.query.tags
-        const rows = await db.execute('SELECT * FROM gift WHERE tags LIKE (?)', ['%' + tags + '%'])
-        res.status(200).json(rows[0])
+        const {tags} = req.body
+
+        if (tags.length > 0){
+            const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
+
+            const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery}`)
+            res.status(200).json(rows[0])
+        } else {
+            const rows = await db.execute(`SELECT * FROM gift`)
+            res.status(200).json(rows[0])
+        }
+
     } catch(error){
         res.status(500).json({massage: "ERROR WHILE GETING DATA " + error})
     }

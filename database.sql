@@ -35,3 +35,9 @@ CREATE TABLE users (
     role INT NOT NULL, 
     email VARCHAR(255) NOT NULL 
 )
+
+-- временное решение
+CREATE TABLE tags (
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    text VARCHAR(255) NOT NULL
+)
