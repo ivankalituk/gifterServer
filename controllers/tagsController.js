@@ -47,7 +47,7 @@ const getTagByInput = async (req, res) => {
         }
 
         // Выполняем запрос к базе данных с использованием LIKE для поиска тегов
-        const [rows] = await db.execute('SELECT * FROM tags WHERE text LIKE ?', [`%${text}%`]);
+        const [rows] = await db.execute('SELECT * FROM tags WHERE text LIKE ? LIMIT 5', [`%${text}%`]);
 
         // Отправляем найденные теги в ответе
         res.status(200).json(rows);

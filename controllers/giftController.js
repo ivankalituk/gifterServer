@@ -13,9 +13,16 @@ const db = mysql.createPool({
 // создание подарка
 const createGift = async(req, res) => {
     try{
-        const {name, photoPath, creatorId, adminId, tags} = req.body
+        const {name, creatorId, adminId, tags} = req.body
+        
 
-        const [rows] = await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, photoPath, creatorId, adminId, tags])
+        if(req.file){
+            const {filename} = req.file
+            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, 'uploads/' + filename, creatorId, adminId, tags])
+        } else {
+            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, null, creatorId, adminId, tags])
+        }
+
         res.status(200).json({massage: "DATA ADDED"})
     } catch(error){
         res.status(500).json({massage: "ERROR WHILE ADDING DATA " + error})
@@ -36,7 +43,7 @@ const getAllGifts = async(req, res) => {
 const getTagedGifts = async(req, res) => {
     try{
         const {tags} = req.body
-
+        console.log(tags)
         if (tags.length > 0){
             const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
 

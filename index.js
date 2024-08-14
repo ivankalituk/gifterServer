@@ -2,6 +2,7 @@ const express = require('express')
 const multer = require('multer')
 const mysql = require('mysql2/promise')
 const cors = require('cors')
+const {slugify} = require('transliteration')
 
 const port = 1000
 const app = express()
@@ -46,7 +47,7 @@ db.getConnection().then((connection) => {
 })
 
 // CRUD для подарка
-app.post('/gift', createGift)                                   //создание подарка
+app.post('/gift', upload.single('image'), createGift)                                   //создание подарка
 app.get('/gift', getAllGifts)                                   //получение всех подарков
 app.post('/gift/tags', getTagedGifts)                            //получение подарков по тегам
 app.get('/gift/:gift_id', getGiftsById)                         //получение подарка по его айди
