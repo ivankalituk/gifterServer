@@ -9,15 +9,28 @@ const db = mysql.createPool({
 
 // создать саггестов
 const createSuggest = async (req, res) => {
-    try{
-        const {user_id, content, photoPath, tags, name} = req.body
+    try {
+        const {name, user_id, content} = req.body
 
-        await db.execute('INSERT INTO suggest (user_id, content, photoPath, tags, name) VALUES (?, ?, ?, ?, ?)', [user_id, content, photoPath, tags, name])
-        res.status(200).json({massage: "DATA ADDED"})
-    } catch (error){
-        res.status(500).json({massage: "ERROR WHILE CREATING " + error})
+        let filename;
+
+        if (req.file) {
+            ({ filename: filename } = req.file);
+            filename = 'uploads/' + filename
+        } else{
+            filename = null
+        }
+
+        console.log(user_id, content, name, filename)
+
+        await db.execute("INSERT INTO suggest (user_id, content, name, photoPath) VALUES (?, ?, ?, ?)", [Number(user_id), content, name, filename])
+
+        res.status(200).json({ message: "DATA ADDED" });
+    } catch (error) {
+      res.status(500).json({ message: "ERROR WHILE CREATING " + error });
     }
-}
+  };
+  
 
 // получение всех саггестов
 const getAllSuggests = async (req, res) => {

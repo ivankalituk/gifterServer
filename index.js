@@ -62,7 +62,7 @@ app.get('/report/:report_id', getReportById)                    //получен
 app.delete('/report/:report_id', deleteReport)                  //удаление репорта
 
 // CRUD для саггеста
-app.post('/suggest', createSuggest)                               //создание саггеста
+app.post('/suggest',upload.single('image'), createSuggest)                               //создание саггеста
 app.get('/suggest', getAllSuggests)                               //получение всех саггестов
 app.get('/suggest/:suggest_id', getSuggestById)                   //получение саггеста по его айди
 app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
