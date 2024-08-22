@@ -10,7 +10,12 @@ const db = mysql.createPool({
 // создать саггестов
 const createSuggest = async (req, res) => {
     try {
-        const {name, user_id, content} = req.body
+        const {name, user_id, content, tagArray} = req.body
+
+        // переделать таг еррей в строку
+        const tagString = tagArray.join(', ')
+        console.log(tagString)
+
 
         let filename;
 
@@ -21,9 +26,7 @@ const createSuggest = async (req, res) => {
             filename = null
         }
 
-        console.log(user_id, content, name, filename)
-
-        await db.execute("INSERT INTO suggest (user_id, content, name, photoPath) VALUES (?, ?, ?, ?)", [Number(user_id), content, name, filename])
+        await db.execute("INSERT INTO suggest (user_id, content, name, photoPath, tags) VALUES (?, ?, ?, ?, ?)", [Number(user_id), content, name, filename, tagString])
 
         res.status(200).json({ message: "DATA ADDED" });
     } catch (error) {
