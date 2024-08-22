@@ -42,15 +42,39 @@ const getAllGifts = async(req, res) => {
 // получение всех подарков по тегам
 const getTagedGifts = async(req, res) => {
     try{
-        const {tags} = req.body
-        console.log(tags)
+        const {tags, sort, byName} = req.body
+
+        // сортировка
+        let sorting
+        switch(sort){
+            case 'За датою' :
+                sorting = 'addDate'
+                break
+            case 'За рейтингом' :
+                sorting = 'reating'
+                break
+            case 'За переглядами' :
+                sorting = 'userViews'
+                break
+        }
+
+        // получение результатов
         if (tags.length > 0){
             const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
 
-            const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery}`)
-            res.status(200).json(rows[0])
+            // если поиск по слову
+            if(byName === ''){
+                console.log('NOT NAME')
+                const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} ORDER BY ${sorting} DESC`);
+                res.status(200).json(rows[0])
+            } else {
+                console.log('NAMEEE')
+                const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} AND name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`]);  
+                res.status(200).json(rows[0])
+            }
+
         } else {
-            const rows = await db.execute(`SELECT * FROM gift`)
+            const rows = await db.execute(`SELECT * FROM gift ORDER BY ${sorting} DESC`)
             res.status(200).json(rows[0])
         }
 
@@ -118,6 +142,22 @@ const deleteGift = async (req, res) => {
     }
 }
 
+const getGiftName = async (req, res) => {
+    try{
+        const {name} = req.body
+        console.log(name)
+
+        if(name === ''){
+            res.status(200).json([])
+        } else{
+            const rows = await db.execute(`SELECT name FROM gift WHERE name LIKE '%${name}%' LIMIT 5`);
+            res.status(200).json(rows[0])
+        }
+    } catch (error){
+        res.status(500).json({massage: "ERROR WHITE GETING DATA " + error})
+    }
+}
+
 module.exports = {
     createGift,
     getAllGifts,
@@ -125,5 +165,6 @@ module.exports = {
     getGiftsById,
     getGiftsByCreatorId,
     putGift,
-    deleteGift
+    deleteGift,
+    getGiftName
 }
