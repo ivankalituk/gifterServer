@@ -63,18 +63,11 @@ const getTagedGifts = async(req, res) => {
             const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
 
             // если поиск по слову
-            if(byName === ''){
-                console.log('NOT NAME')
-                const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} ORDER BY ${sorting} DESC`);
-                res.status(200).json(rows[0])
-            } else {
-                console.log('NAMEEE')
-                const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} AND name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`]);  
-                res.status(200).json(rows[0])
-            }
+            const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} AND name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`]);  
+            res.status(200).json(rows[0])
 
         } else {
-            const rows = await db.execute(`SELECT * FROM gift ORDER BY ${sorting} DESC`)
+            const rows = await db.execute(`SELECT * FROM gift WHERE name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`])
             res.status(200).json(rows[0])
         }
 
