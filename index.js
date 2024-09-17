@@ -7,7 +7,11 @@ const {slugify} = require('transliteration')
 const port = 1000
 const app = express()
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+    origin: '*',  // Разрешить доступ с любого домена
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}));
+
 app.use('/uploads', express.static('uploads'))
 
 // Контроллеры
@@ -77,7 +81,7 @@ app.post('/tag', craeteTag)
 app.get('/tag', getAllTags)  
 app.post('/tagName', getTagByInput)  
 
-app.listen(port, (error) => {
+app.listen(port, '0.0.0.0', (error) => {
     if (error){
         return(console.log(error))
     }

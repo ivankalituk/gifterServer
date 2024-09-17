@@ -91,7 +91,9 @@ const getGiftsById = async(req, res) => {
 const getGiftsByCreatorId = async(req, res) => {
     try{
         const creator_id = req.params.creator_id
+        console.log(creator_id)
         const rows = await db.execute('SELECT * FROM gift WHERE creatorId = (?)', [creator_id])
+        console.log(rows[0])
         res.status(200).json(rows[0])
     } catch(error){
         res.status(500).json({massage: "ERROR WHILE GETING DATA " + error})
