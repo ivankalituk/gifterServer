@@ -55,6 +55,74 @@ const getUserData = async(req, res) => {
 
 }
 
+// смена ника
+const userNicknameChange = async (req, res) => {
+    try{
+        let {user_id, nickname} = req.body
+
+        await db.execute('UPDATE users SET nickname = (?) WHERE id = ?', [nickname, user_id])
+        res.status(200).json({massage: 'DATA UPDATED'})
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE POSTING DATA " + error})
+    }
+}
+
+// смена тегов пользователя
+const userTagsChange = async (req, res) => {
+    try{
+        let {user_id, tags} = req.body
+
+        await db.execute('UPDATE users SET tags = (?) WHERE id = ?', [tags.join(', '), user_id])
+        res.status(200).json({massage: 'DATA UPDATED'})
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE POSTING DATA " + error})
+    }
+}
+
+// смена био пользователя
+const userBioChange = async (req, res) => {
+    try{
+        let {user_id, bio} = req.body
+
+        await db.execute('UPDATE users SET bio = (?) WHERE id = ?', [bio, user_id])
+        res.status(200).json({massage: 'DATA UPDATED'})
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE POSTING DATA " + error})
+    }
+}
+
+
+// смена фото пользователя
+const userPhotoChange = async (req, res) => {
+    try{
+
+        const {user_id} = req.body
+
+        let filename;
+
+        if (req.file) {
+            ({ filename: filename } = req.file);
+            filename = 'uploads/' + filename
+        } else{
+            filename = null
+        }
+
+        const prevImgName = await db.execute('SELECT imgPath FROM users WHERE id = ?', [user_id])
+        
+        if(prevImgName){
+            // удаление старого фото
+        }
+
+        await db.execute('UPDATE users SET imgPath = (?) WHERE id = ?', [filename, user_id])
+
+        // возможно тут отправлять обратно новый имг паз
+        res.status(200).json({massage: 'DATA UPDATED'})
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE POSTING DATA " + error})
+    }
+}
+
+
 module.exports = {
     getUserData,
 }
