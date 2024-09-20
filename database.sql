@@ -36,6 +36,12 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL 
 )
 
+-- изменил так как забыл добавить
+ALTER TABLE users
+ADD COLUMN bio VARCHAR(255),
+ADD COLUMN tags VARCHAR(255);
+
+
 -- временное решение
 CREATE TABLE tags (
 	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,

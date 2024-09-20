@@ -32,7 +32,6 @@ const getUserData = async(req, res) => {
         const {access_token} = req.body
 
         const userInfo = await getGoogleData(access_token)
-        console.log(userInfo)
 
         // если почта была зарегестрированна, то получаем данные, если нет - то создаём и получаем их
         if(userInfo.nickname !== null){
@@ -91,11 +90,9 @@ const userBioChange = async (req, res) => {
     }
 }
 
-
 // смена фото пользователя
 const userPhotoChange = async (req, res) => {
     try{
-
         const {user_id} = req.body
 
         let filename;
@@ -106,6 +103,12 @@ const userPhotoChange = async (req, res) => {
         } else{
             filename = null
         }
+
+        if(req.file){
+            console.log("FILE")
+        }
+
+        console.log(filename)
 
         const prevImgName = await db.execute('SELECT imgPath FROM users WHERE id = ?', [user_id])
         
@@ -122,7 +125,46 @@ const userPhotoChange = async (req, res) => {
     }
 }
 
+// получение тегов пользователя
+const getUserTags = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+
+        // Выполнение запроса к базе данных
+        const [rows] = await db.execute('SELECT tags FROM users WHERE id = ?', [user_id]);
+
+        let mas = [];
+        if (rows.length > 0 && rows[0].tags !== null) {
+            mas = rows[0].tags.split(', ');
+        }
+
+        res.status(200).json(mas);
+    } catch (error) {
+        res.status(500).json({ message: "ERROR WHILE GETTING DATA " + error });
+    }
+}
+
+const getUserBio = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+
+        // Выполнение запроса к базе данных
+        const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
+
+        console.log(rows[0])
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: "ERROR WHILE GETTING DATA " + error });
+    }
+}
 
 module.exports = {
     getUserData,
+    userNicknameChange,
+    userBioChange,
+    getUserTags,
+    userTagsChange,
+    userPhotoChange,
+    getUserBio
 }

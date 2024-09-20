@@ -18,7 +18,7 @@ app.use('/uploads', express.static('uploads'))
 const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift, getGiftName} = require('./controllers/giftController')
 const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
-const {getUserData} = require('./controllers/userController')
+const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, userPhotoChange, getUserBio} = require('./controllers/userController')
 const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
 
 // генератор уникальных названий файлов мультера
@@ -73,8 +73,13 @@ app.get('/suggest/:suggest_id', getSuggestById)                   //получе
 app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
 
 // CRUD для пользователя
-app.post('/user', getUserData)                        //получение пользователя по его токену
-
+app.post('/user', getUserData)                          //получение пользователя по его токену
+app.put('/user/nickname', userNicknameChange)           //смена ника пользователя
+app.put('/user/bio', userBioChange)                     //смена био пользователя
+app.get('/user/tags/:user_id', getUserTags)             //получение тегов по айди пользователя
+app.put('/user/tags', userTagsChange)                   //смена тегов пользователя
+app.put('/user/photo', upload.single('image'), userPhotoChange)                  //смена аватара пользователя
+app.put('/user/tags/:user_id', getUserBio)              //получение био
 
 // CRUD для тегов
 app.post('/tag', craeteTag)   
