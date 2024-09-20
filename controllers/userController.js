@@ -148,10 +148,10 @@ const getUserBio = async (req, res) => {
     try {
         const user_id = req.params.user_id;
 
-        // Выполнение запроса к базе данных
-        const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
+        console.log(user_id)
 
-        console.log(rows[0])
+        const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
+        console.log(rows)
 
         res.status(200).json(rows[0]);
     } catch (error) {

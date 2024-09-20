@@ -79,7 +79,7 @@ app.put('/user/bio', userBioChange)                     //смена био по
 app.get('/user/tags/:user_id', getUserTags)             //получение тегов по айди пользователя
 app.put('/user/tags', userTagsChange)                   //смена тегов пользователя
 app.put('/user/photo', upload.single('image'), userPhotoChange)                  //смена аватара пользователя
-app.put('/user/tags/:user_id', getUserBio)              //получение био
+app.get('/user/bio/:user_id', getUserBio)              //получение био
 
 // CRUD для тегов
 app.post('/tag', craeteTag)   
