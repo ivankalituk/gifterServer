@@ -18,8 +18,10 @@ app.use('/uploads', express.static('uploads'))
 const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift, getGiftName} = require('./controllers/giftController')
 const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
-const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, userPhotoChange, getUserBio} = require('./controllers/userController')
+const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, getUserById, userPhotoChange, getUserBio} = require('./controllers/userController')
 const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
+const {getAllBlackUsers, getBlackUsersEmail, getBlackUsers, removeUserFromBlacklist} = require('./controllers/blackListController')
+
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -80,11 +82,18 @@ app.get('/user/tags/:user_id', getUserTags)             //получение т�
 app.put('/user/tags', userTagsChange)                   //смена тегов пользователя
 app.put('/user/photo', upload.single('image'), userPhotoChange)                  //смена аватара пользователя
 app.get('/user/bio/:user_id', getUserBio)              //получение био
+app.get('/user/:user_id', getUserById)                  //получение пользователя по айди
 
 // CRUD для тегов
 app.post('/tag', craeteTag)   
 app.get('/tag', getAllTags)  
 app.post('/tagName', getTagByInput)  
+
+// CRUD для чёрного спика
+app.get('/blacklist', getAllBlackUsers)                 //получение чёрного списка     
+app.post('/blacklist/email', getBlackUsersEmail)        //поиск емейла по фрагменту емейла
+app.post('/blacklist/users/email', getBlackUsers)        //отобразить пользователей по емейлу
+app.delete('/blacklist/user/:user_id', removeUserFromBlacklist)        //отобразить пользователей по емейлу
 
 app.listen(port, '0.0.0.0', (error) => {
     if (error){

@@ -159,6 +159,21 @@ const getUserBio = async (req, res) => {
     }
 }
 
+const getUserById = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+
+        console.log(user_id)
+
+        const rows = await db.execute('SELECT * FROM users WHERE id = ?', [user_id]);
+        console.log(rows)
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: "ERROR WHILE GETTING DATA " + error });
+    }
+}
+
 module.exports = {
     getUserData,
     userNicknameChange,
@@ -166,5 +181,6 @@ module.exports = {
     getUserTags,
     userTagsChange,
     userPhotoChange,
-    getUserBio
+    getUserBio,
+    getUserById
 }
