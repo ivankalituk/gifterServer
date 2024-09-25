@@ -30,7 +30,6 @@ const getBlackUsers = async(req, res) => {
     }
 }
 
-
 // поиск по емейлу
 const getBlackUsersEmail = async(req, res) => {
     try {
@@ -63,6 +62,7 @@ const getBlackUsersEmail = async(req, res) => {
     }
 }
 
+// удаление из чёрного списка
 const removeUserFromBlacklist = async(req, res) => {
     try{
         const user_id = req.params.user_id

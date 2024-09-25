@@ -54,3 +54,14 @@ CREATE TABLE blacklist (
     user_id INT NOT NULL,
     addDate DATETIME DEFAULT CURRENT_TIMESTAMP
 )
+
+-- админский список
+CREATE TABLE admins (
+	id INT AUTO_INCREMENT NOT NULL PRIMARY KEY,
+    user_id INT NOT NULL,
+    addDate DATETIME DEFAULT CURRENT_TIMESTAMP,
+    admin_level INT NOT NULL DEFAULT 1
+)
+
+-- тестовые данные
+INSERT INTO admins (user_id, admin_level) VALUES (1, 2)

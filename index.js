@@ -21,7 +21,7 @@ const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('
 const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, getUserById, userPhotoChange, getUserBio} = require('./controllers/userController')
 const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
 const {getAllBlackUsers, getBlackUsersEmail, getBlackUsers, removeUserFromBlacklist} = require('./controllers/blackListController')
-
+const {getAdminsByEmailFragment, getAdminsFullDataByEmail, adminLevelChange} = require('./controllers/adminController')
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -94,6 +94,11 @@ app.get('/blacklist', getAllBlackUsers)                 //получение ч�
 app.post('/blacklist/email', getBlackUsersEmail)        //поиск емейла по фрагменту емейла
 app.post('/blacklist/users/email', getBlackUsers)        //отобразить пользователей по емейлу
 app.delete('/blacklist/user/:user_id', removeUserFromBlacklist)        //отобразить пользователей по емейлу
+
+// CRUD для списков админов
+app.post('/admins', getAdminsByEmailFragment)           //получить админов по фрагменту почты
+app.post('/admins/email', getAdminsFullDataByEmail)     //получить админов по фрагменту почты
+app.put('/admins/leveling', adminLevelChange)            //по операции - или + менять уровень админа (НЕ ПРОВЕРЯЛ)
 
 app.listen(port, '0.0.0.0', (error) => {
     if (error){
