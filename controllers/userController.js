@@ -104,11 +104,6 @@ const userPhotoChange = async (req, res) => {
             filename = null
         }
 
-        if(req.file){
-            console.log("FILE")
-        }
-
-        console.log(filename)
 
         const prevImgName = await db.execute('SELECT imgPath FROM users WHERE id = ?', [user_id])
         
@@ -148,10 +143,9 @@ const getUserBio = async (req, res) => {
     try {
         const user_id = req.params.user_id;
 
-        console.log(user_id)
+
 
         const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
-        console.log(rows)
 
         res.status(200).json(rows[0]);
     } catch (error) {
@@ -162,11 +156,7 @@ const getUserBio = async (req, res) => {
 const getUserById = async (req, res) => {
     try {
         const user_id = req.params.user_id;
-
-        console.log(user_id)
-
         const rows = await db.execute('SELECT * FROM users WHERE id = ?', [user_id]);
-        console.log(rows)
 
         res.status(200).json(rows[0]);
     } catch (error) {

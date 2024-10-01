@@ -67,7 +67,6 @@ const removeUserFromBlacklist = async(req, res) => {
     try{
         const user_id = req.params.user_id
 
-        console.log(user_id)
 
         await db.execute('DELETE FROM blacklist WHERE user_id = ?', [user_id])
         res.status(200).json({message: "DELETED"})
