@@ -13,14 +13,19 @@ const db = mysql.createPool({
 // создание подарка
 const createGift = async(req, res) => {
     try{
-        const {name, creatorId, adminId, tags} = req.body
-        
+        const {name, creator_id, admin_id, tags, imagePath} = req.body
+        console.log(name, creator_id, admin_id, tags, imagePath)
 
-        if(req.file){
+        if (req.file){
+            console.log('FILE EXIST')
             const {filename} = req.file
-            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, 'uploads/' + filename, creatorId, adminId, tags])
+            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, 'uploads/' + filename, creator_id, admin_id, tags.join(', ')])
+
+            // тут также если имеджпаз введён, то удаляем этот имеджпаз и удаляем саму запись саггеста
+
         } else {
-            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, null, creatorId, adminId, tags])
+            console.log('NO FILE')
+            await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, imagePath, creator_id, admin_id, tags.join(', ')])
         }
 
         res.status(200).json({massage: "DATA ADDED"})
@@ -64,10 +69,37 @@ const getTagedGifts = async(req, res) => {
 
             // если поиск по слову
             const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} AND name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`]);  
+
+                    // Проверяем, что rows[0] существует и является массивом
+                if (Array.isArray(rows[0])) {
+                    // Обрабатываем каждый объект в массиве rows[0]
+                    rows[0] = rows[0].map(item => {
+                        // Если в объекте есть поле tags и это строка
+                        if (item.tags && typeof item.tags === 'string') {
+                            // Разделяем строку по запятой и пробелу на массив
+                            item.tags = item.tags.split(',').map(tag => tag.trim());
+                        }
+                        return item;
+                    });
+                }
+
             res.status(200).json(rows[0])
 
         } else {
             const rows = await db.execute(`SELECT * FROM gift WHERE name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`])
+
+                    // Проверяем, что rows[0] существует и является массивом
+                if (Array.isArray(rows[0])) {
+                    // Обрабатываем каждый объект в массиве rows[0]
+                    rows[0] = rows[0].map(item => {
+                        // Если в объекте есть поле tags и это строка
+                        if (item.tags && typeof item.tags === 'string') {
+                            // Разделяем строку по запятой и пробелу на массив
+                            item.tags = item.tags.split(',').map(tag => tag.trim());
+                        }
+                        return item;
+                    });
+                }
             res.status(200).json(rows[0])
         }
 
@@ -81,6 +113,20 @@ const getGiftsById = async(req, res) => {
     try{
         const id = req.params.gift_id
         const rows = await db.execute('SELECT * FROM gift WHERE id = (?)', [id])
+
+        // Проверяем, что rows[0] существует и является массивом
+        if (Array.isArray(rows[0])) {
+            // Обрабатываем каждый объект в массиве rows[0]
+            rows[0] = rows[0].map(item => {
+                // Если в объекте есть поле tags и это строка
+                if (item.tags && typeof item.tags === 'string') {
+                    // Разделяем строку по запятой и пробелу на массив
+                    item.tags = item.tags.split(',').map(tag => tag.trim());
+                }
+                return item;
+            });
+        }
+
         res.status(200).json(rows[0])
     } catch(error){
         res.status(500).json({massage: "ERROR WHILE GETING DATA " + error})
@@ -92,6 +138,20 @@ const getGiftsByCreatorId = async(req, res) => {
     try{
         const creator_id = req.params.creator_id
         const rows = await db.execute('SELECT * FROM gift WHERE creatorId = (?)', [creator_id])
+
+        // Проверяем, что rows[0] существует и является массивом
+        if (Array.isArray(rows[0])) {
+            // Обрабатываем каждый объект в массиве rows[0]
+            rows[0] = rows[0].map(item => {
+                // Если в объекте есть поле tags и это строка
+                if (item.tags && typeof item.tags === 'string') {
+                    // Разделяем строку по запятой и пробелу на массив
+                    item.tags = item.tags.split(',').map(tag => tag.trim());
+                }
+                return item;
+            });
+        }
+
         res.status(200).json(rows[0])
     } catch(error){
         res.status(500).json({massage: "ERROR WHILE GETING DATA " + error})
