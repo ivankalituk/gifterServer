@@ -11,12 +11,12 @@ const db = mysql.createPool({
 })
 
 
-// получить почты админов по фрагменту почты
+// получить похожие почты админов по фрагменту почты
 const getAdminsByEmailFragment = async(req, res) => {
     try{
         const { email } = req.body;
 
-        // Проверяем, что текст не пустой
+        // если текст пустой то возвращаем пустой массив 
         if (email === ''){
             return res.status(200).json([])
         }
@@ -71,18 +71,11 @@ const adminLevelChange = async(req, res) => {
             // Уменьшаем admin_level на 1, если он больше 1
             await db.execute(`UPDATE admins SET admin_level = admin_level - 1 WHERE admin_level > 1 AND user_id = ?;`, [user_id]);
         } else {
-            await db.execute(
-                `UPDATE admins 
-                SET admin_level = CASE 
-                    WHEN admin_level < 3 THEN admin_level + 1 
-                    ELSE admin_level 
-                END 
-                WHERE user_id = ?`, [user_id])
+            // если операция +, то повысить уровень админа на 1 уровень, если урвень максимальный то ничего не делать
+            await db.execute(`UPDATE admins SET admin_level = CASE WHEN admin_level < 3 THEN admin_level + 1 ELSE admin_level END WHERE user_id = ?`, [user_id])
         }
 
         res.status(200).json({massege: "SUCCESS"})
-        
-        
     } catch(error){
         res.status(500).json({massege: "ERROR WHILE UPDATING DATA " + error})
     }

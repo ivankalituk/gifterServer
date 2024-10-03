@@ -53,12 +53,12 @@ db.getConnection().then((connection) => {
 })
 
 // CRUD для подарка
-app.post('/gift', upload.single('image'), createGift)                                   //создание подарка
+app.post('/gift', upload.single('image'), createGift)           //создание подарка
 app.get('/gift', getAllGifts)                                   //получение всех подарков
-app.post('/gift/tags', getTagedGifts)                            //получение подарков по тегам
+app.post('/gift/tags', getTagedGifts)                           //получение подарков по тегам
 app.get('/gift/:gift_id', getGiftsById)                         //получение подарка по его айди
 app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получепние подарка по айди его создателя
-app.put('/gift', putGift)                                       //обновление подарка НЕГОТОВОы
+app.put('/gift', putGift)                                       //обновление подарка (не готово)
 app.delete('/gift/:gift_id', deleteGift)                        //удаление подарка по айди
 app.post('/gift/name', getGiftName)                             //получение имён подарков по части имени
 
@@ -69,36 +69,36 @@ app.get('/report/:report_id', getReportById)                    //получен
 app.delete('/report/:report_id', deleteReport)                  //удаление репорта
 
 // CRUD для саггеста
-app.post('/suggest',upload.single('image'), createSuggest)                               //создание саггеста
-app.get('/suggest', getAllSuggests)                               //получение всех саггестов
-app.get('/suggest/:suggest_id', getSuggestById)                   //получение саггеста по его айди
-app.delete('/suggest/:suggest_id', deleteSuggest)                 //удаление саггеста
+app.post('/suggest',upload.single('image'), createSuggest)      //создание саггеста
+app.get('/suggest', getAllSuggests)                             //получение всех саггестов
+app.get('/suggest/:suggest_id', getSuggestById)                 //получение саггеста по его айди
+app.delete('/suggest/:suggest_id', deleteSuggest)               //удаление саггеста
 
 // CRUD для пользователя
-app.post('/user', getUserData)                          //получение пользователя по его токену
-app.put('/user/nickname', userNicknameChange)           //смена ника пользователя
-app.put('/user/bio', userBioChange)                     //смена био пользователя
-app.get('/user/tags/:user_id', getUserTags)             //получение тегов по айди пользователя
-app.put('/user/tags', userTagsChange)                   //смена тегов пользователя
-app.put('/user/photo', upload.single('image'), userPhotoChange)                  //смена аватара пользователя
-app.get('/user/bio/:user_id', getUserBio)              //получение био
-app.get('/user/:user_id', getUserById)                  //получение пользователя по айди
+app.post('/user', getUserData)                                  //получение пользователя по его токену
+app.put('/user/nickname', userNicknameChange)                   //смена ника пользователя
+app.put('/user/bio', userBioChange)                             //смена био пользователя
+app.get('/user/tags/:user_id', getUserTags)                     //получение тегов по айди пользователя
+app.put('/user/tags', userTagsChange)                           //смена тегов пользователя
+app.put('/user/photo', upload.single('image'), userPhotoChange) //смена аватара пользователя
+app.get('/user/bio/:user_id', getUserBio)                       //получение био
+app.get('/user/:user_id', getUserById)                          //получение пользователя по айди
 
-// CRUD для тегов
-app.post('/tag', craeteTag)   
-app.get('/tag', getAllTags)  
-app.post('/tagName', getTagByInput)  
+// CRUD для тегов (не полностью)
+app.post('/tag', craeteTag)                                     //создать тег
+app.get('/tag', getAllTags)                                     //получить все теги
+app.post('/tagName', getTagByInput)                             //получить похожие теги по фрагменту слова
 
 // CRUD для чёрного спика
-app.get('/blacklist', getAllBlackUsers)                 //получение чёрного списка     
-app.post('/blacklist/email', getBlackUsersEmail)        //поиск емейла по фрагменту емейла
-app.post('/blacklist/users/email', getBlackUsers)        //отобразить пользователей по емейлу
-app.delete('/blacklist/user/:user_id', removeUserFromBlacklist)        //отобразить пользователей по емейлу
+app.get('/blacklist', getAllBlackUsers)                         //получение чёрного списка     
+app.post('/blacklist/email', getBlackUsersEmail)                //поиск емейла по фрагменту емейла
+app.post('/blacklist/users/email', getBlackUsers)               //отобразить пользователей по емейлу
+app.delete('/blacklist/user/:user_id', removeUserFromBlacklist) //отобразить пользователей по емейлу
 
 // CRUD для списков админов
-app.post('/admins', getAdminsByEmailFragment)           //получить админов по фрагменту почты
-app.post('/admins/email', getAdminsFullDataByEmail)     //получить админов по фрагменту почты
-app.put('/admins/leveling', adminLevelChange)            //по операции - или + менять уровень админа (НЕ ПРОВЕРЯЛ)
+app.post('/admins', getAdminsByEmailFragment)                   //получить админов по фрагменту почты
+app.post('/admins/email', getAdminsFullDataByEmail)             //получить админов по фрагменту почты
+app.put('/admins/leveling', adminLevelChange)                   //по операции - или + менять уровень админа (НЕ ПРОВЕРЯЛ)
 
 app.listen(port, '0.0.0.0', (error) => {
     if (error){

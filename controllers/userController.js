@@ -10,7 +10,7 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
-// функция для получения данных по гугл аксес токену
+// функция для получения данных по гугл аксес токену (ПРОМЕЖУТОЧНАЯ ФУНКЦИЯ)
 const getGoogleData = async (access_token) => {
     const userInfoResponse = await fetch('https://www.googleapis.com/oauth2/v1/userinfo?alt=json', {
         headers: {
@@ -90,7 +90,7 @@ const userBioChange = async (req, res) => {
     }
 }
 
-// смена фото пользователя
+// смена фото пользователя (удалить прошлое фото)
 const userPhotoChange = async (req, res) => {
     try{
         const {user_id} = req.body
@@ -139,12 +139,11 @@ const getUserTags = async (req, res) => {
     }
 }
 
+// получение био пользователя
 const getUserBio = async (req, res) => {
     try {
         const user_id = req.params.user_id;
-
-
-
+        
         const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
 
         res.status(200).json(rows[0]);
@@ -153,6 +152,7 @@ const getUserBio = async (req, res) => {
     }
 }
 
+// получение пользователя по его айди
 const getUserById = async (req, res) => {
     try {
         const user_id = req.params.user_id;

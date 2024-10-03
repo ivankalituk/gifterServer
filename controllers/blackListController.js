@@ -30,7 +30,7 @@ const getBlackUsers = async(req, res) => {
     }
 }
 
-// поиск по емейлу
+// поиск пользователей из чёрного списка по фрагменту их почты
 const getBlackUsersEmail = async(req, res) => {
     try {
         const { email } = req.body;
@@ -55,7 +55,6 @@ const getBlackUsersEmail = async(req, res) => {
             return updatedRow;
         });
 
-        // Отправляем найденные email в ответе
         res.status(200).json(updatedRows);
     } catch (error) {
         res.status(500).json({ message: "ERROR WHILE GETTING DATA: " + error.message });
@@ -66,7 +65,6 @@ const getBlackUsersEmail = async(req, res) => {
 const removeUserFromBlacklist = async(req, res) => {
     try{
         const user_id = req.params.user_id
-
 
         await db.execute('DELETE FROM blacklist WHERE user_id = ?', [user_id])
         res.status(200).json({message: "DELETED"})

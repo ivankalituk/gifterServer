@@ -10,7 +10,7 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
-// создание тега
+// создание тега (сделать особым образом)
 const craeteTag = async(req, res) => {
     try{
         const {tag} = req.body
@@ -33,6 +33,7 @@ const getAllTags = async(req, res) => {
     }
 }
 
+// поиск тегов по их фрагменту
 const getTagByInput = async (req, res) => {
     try {
         const { text } = req.body;

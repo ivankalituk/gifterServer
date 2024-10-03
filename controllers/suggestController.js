@@ -7,11 +7,12 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
-// создать саггестов
+// создать саггестов (функция аррей в стринг)
 const createSuggest = async (req, res) => {
     try {
         const {name, user_id, content, tagArray} = req.body
 
+        // массив из тегов переделать в строку тегов для занесения в бд
         let tagString
         if(tagArray){
             tagString = tagArray.join(', ')
@@ -19,6 +20,7 @@ const createSuggest = async (req, res) => {
             tagString = null
         }
 
+        // если добавлено фото, то сохраняем файлнейм, если нет, то даём названию NULL
         let filename;
         if (req.file) {
             ({ filename: filename } = req.file);
@@ -36,7 +38,7 @@ const createSuggest = async (req, res) => {
   };
   
 
-// получение всех саггестов
+// получение всех саггестов (функция стринг в аррей)
 const getAllSuggests = async (req, res) => {
     try {
         const rows = await db.execute('SELECT * FROM suggest');
@@ -60,8 +62,7 @@ const getAllSuggests = async (req, res) => {
     }
 }
 
-
-// получение одного саггеста по его айди
+// получение одного саггеста по его айди (функция стринг в аррей)
 const getSuggestById = async (req, res) => {
     try{
         const suggest_id = req.params.suggest_id
@@ -85,7 +86,7 @@ const getSuggestById = async (req, res) => {
     }
 }
 
-// удаление саггеста
+// удаление саггеста (сделать удаление фото, если оно не налл)
 const deleteSuggest = async (req, res) => {
     try{
         const suggest_id = req.params.suggest_id
