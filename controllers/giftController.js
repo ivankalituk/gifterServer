@@ -9,24 +9,50 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
-// ДОБАВИТЬ +1 К ПРОСМОТРУ ПРИ ГЕТ ЗАПРОСЕ ПОДАРКА
-
 // создание подарка (ПЕРЕДЕЛАТЬ)
 const createGift = async(req, res) => {
     try{
-        const {name, creator_id, admin_id, tags, imagePath} = req.body
-        console.log(name, creator_id, admin_id, tags, imagePath)
+        const {name, creator_id, admin_id, tags, imagePath, suggest_id} = req.body
+        console.log(name, creator_id, admin_id, tags, imagePath, suggest_id)
 
+        // если в запросе был передан файл, то мы его добавляем в нашу запись
+        // если файла нет, то фото из саггеста было оставлено для добавления в запись
         if (req.file){
-            console.log('FILE EXIST')
             const {filename} = req.file
             await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, 'uploads/' + filename, creator_id, admin_id, tags.join(', ')])
+
+            // находим фото саггеста для удаления
+            const [[{photoPath}]] = await db.execute("SELECT photoPath FROM suggest WHERE id = ?", [suggest_id])
+
+            // удаляем фото саггеста если оно существует
+            if (photoPath !== null && fs.existsSync(photoPath)){
+                fs.unlink(photoPath, (err) => {
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "Ошибка удаления файла"})
+                    }
+                })
+            }
+
+            // удаляем саму запись саггеста
+            await db.execute("DELETE FROM suggest WHERE id = ?", [suggest_id])
         } else {
-            console.log('NO FILE')
             await db.execute("INSERT INTO gift (name, photoPath, creatorId, adminId, tags) VALUES (?, ?, ?, ?, ?)", [name, imagePath, creator_id, admin_id, tags.join(', ')])
+
+            // удаляем запись саггеста не удаляя его фото
+            await db.execute("DELETE FROM suggest WHERE id = ?", [suggest_id])
         }
 
-        // если подарок был создан через саггест, то при передаче саггест айди, удалять сам саггест
+        // если в массиве подарков существуют новые теги, то добавляем их в общий список
+        for (const tag of tags) {
+            // проверка есть ли тег
+            const [[existingTag]] = await db.execute("SELECT id FROM tags WHERE text = ?", [tag]);
+
+            // если нет, то добавляем
+            if (!existingTag) {
+                await db.execute("INSERT INTO tags (text) VALUES (?)", [tag]);
+            }
+        }
 
         res.status(200).json({massage: "DATA ADDED"})
     } catch(error){
@@ -116,10 +142,15 @@ const getTagedGifts = async(req, res) => {
 const getGiftsById = async(req, res) => {
     try{
         const id = req.params.gift_id
+
+        // увеличиваем просмотры подарка на 1
+        await db.execute("UPDATE gift SET views = userViews + 1 WHERE id = ?", [gift_id]);
+
         const rows = await db.execute('SELECT * FROM gift WHERE id = (?)', [id])
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
         const newRows = objectStringIntoObjectMas(rows[0])
+
 
         res.status(200).json(newRows)
     } catch(error){

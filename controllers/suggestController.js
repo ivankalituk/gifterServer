@@ -79,7 +79,6 @@ const deleteSuggest = async (req, res) => {
         // находим саггеста подарка
         const [[{photoPath}]] = await db.execute("SELECT photoPath FROM suggest WHERE id = ?", [suggest_id])
 
-        console.log(photoPath)
         // удаляем фото саггеста если оно существует
         if (photoPath !== null && fs.existsSync(photoPath)){
             fs.unlink(photoPath, (err) => {
