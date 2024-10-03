@@ -43,9 +43,9 @@ const getUserData = async(req, res) => {
                 rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
             }
 
-            res.status(200).json(rows[0][0])
+            res.status(200).json(rows[0])
         } else {
-            res.status(200).json({id: null, nickname: null, imgPath: null, role: null, email: null})
+            res.status(200).json([{id: null, nickname: null, imgPath: null, role: null, email: null}])
         }
 
     } catch(error){
@@ -90,7 +90,7 @@ const userBioChange = async (req, res) => {
     }
 }
 
-// смена фото пользователя (удалить прошлое фото)
+// смена фото пользователя
 const userPhotoChange = async (req, res) => {
     try{
         const {user_id} = req.body
@@ -104,13 +104,20 @@ const userPhotoChange = async (req, res) => {
             filename = null
         }
 
-
-        const prevImgName = await db.execute('SELECT imgPath FROM users WHERE id = ?', [user_id])
+        // получаем прошлое фото пользователя
+        const [[{photoPath}]] = await db.execute("SELECT imgPath FROM users WHERE id = ?", [user_id])
         
-        if(prevImgName){
-            // удаление старого фото
+        // удаляем фото пользователя если оно существует
+        if (photoPath !== null && fs.existsSync(photoPath)){
+            fs.unlink(photoPath, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
         }
 
+        // добавляем название нового фото пользователя
         await db.execute('UPDATE users SET imgPath = (?) WHERE id = ?', [filename, user_id])
 
         // возможно тут отправлять обратно новый имг паз

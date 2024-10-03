@@ -1,3 +1,4 @@
+// дан массив объектов, в объекте заменить tags с стринга в массив
 const objectStringIntoObjectMas = (rows) => {
     if (Array.isArray(rows)) {
         return rows.map(item => {
@@ -12,6 +13,12 @@ const objectStringIntoObjectMas = (rows) => {
     return rows;
 }
 
+// массив переделать в строку
+const arrayIntoString = (array) => {
+    return array.join(', ')
+}
+
 module.exports = {
-    objectStringIntoObjectMas
+    objectStringIntoObjectMas,
+    arrayIntoString
 }

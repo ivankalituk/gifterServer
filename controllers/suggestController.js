@@ -1,4 +1,6 @@
-const mysql = require('mysql2/promise')
+const mysql = require('mysql2/promise');
+const { arrayIntoString, objectStringIntoObjectMas } = require('../utils/functions');
+const fs = require('fs')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -7,7 +9,7 @@ const db = mysql.createPool({
     database: 'gifter'
 })
 
-// создать саггестов (функция аррей в стринг)
+// создать саггестов
 const createSuggest = async (req, res) => {
     try {
         const {name, user_id, content, tagArray} = req.body
@@ -15,7 +17,7 @@ const createSuggest = async (req, res) => {
         // массив из тегов переделать в строку тегов для занесения в бд
         let tagString
         if(tagArray){
-            tagString = tagArray.join(', ')
+            tagString = arrayIntoString(tagArray)
         } else {
             tagString = null
         }
@@ -29,58 +31,40 @@ const createSuggest = async (req, res) => {
             filename = null
         }
 
+        console.log("INSERT")
         await db.execute("INSERT INTO suggest (user_id, content, name, photoPath, tags) VALUES (?, ?, ?, ?, ?)", [Number(user_id), content, name, filename, tagString])
 
+        console.log("READY")
         res.status(200).json({ message: "DATA ADDED" });
     } catch (error) {
       res.status(500).json({ message: "ERROR WHILE CREATING " + error });
     }
   };
   
-
 // получение всех саггестов (функция стринг в аррей)
 const getAllSuggests = async (req, res) => {
     try {
         const rows = await db.execute('SELECT * FROM suggest');
 
-        // Проверяем, что rows[0] существует и является массивом
-        if (Array.isArray(rows[0])) {
-            // Обрабатываем каждый объект в массиве rows[0]
-            rows[0] = rows[0].map(item => {
-                // Если в объекте есть поле tags и это строка
-                if (item.tags && typeof item.tags === 'string') {
-                    // Разделяем строку по запятой и пробелу на массив
-                    item.tags = item.tags.split(',').map(tag => tag.trim());
-                }
-                return item;
-            });
-        }
+        // теги из строки в массив
+        const newRows = objectStringIntoObjectMas(rows[0])
 
-        res.status(200).json(rows[0]);
+        res.status(200).json(newRows);
     } catch (error) {
         res.status(500).json({message: "ERROR WHILE CREATING " + error});
     }
 }
 
-// получение одного саггеста по его айди (функция стринг в аррей)
+// получение одного саггеста по его айди
 const getSuggestById = async (req, res) => {
     try{
         const suggest_id = req.params.suggest_id
         const rows = await db.execute('SELECT * FROM suggest WHERE id = ?', [suggest_id])
 
-        if (Array.isArray(rows[0])) {
-            // Обрабатываем каждый объект в массиве rows[0]
-            rows[0] = rows[0].map(item => {
-                // Если в объекте есть поле tags и это строка
-                if (item.tags && typeof item.tags === 'string') {
-                    // Разделяем строку по запятой и пробелу на массив
-                    item.tags = item.tags.split(',').map(tag => tag.trim());
-                }
-                return item;
-            });
-        }
-        
-        res.status(200).json(rows[0])
+        // теги из строки в массив
+        const newRows = objectStringIntoObjectMas(rows[0])
+
+        res.status(200).json(newRows);
     } catch (error){
         res.status(500).json({massage: "ERROR WHILE CREATING " + error})
     }
@@ -90,7 +74,25 @@ const getSuggestById = async (req, res) => {
 const deleteSuggest = async (req, res) => {
     try{
         const suggest_id = req.params.suggest_id
+
+
+        // находим саггеста подарка
+        const [[{photoPath}]] = await db.execute("SELECT photoPath FROM suggest WHERE id = ?", [suggest_id])
+
+        console.log(photoPath)
+        // удаляем фото саггеста если оно существует
+        if (photoPath !== null && fs.existsSync(photoPath)){
+            fs.unlink(photoPath, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
+        }
+        
+        // удаление записи в бд
         await db.execute('DELETE FROM suggest WHERE id = ?', [suggest_id])
+
         res.status(200).json({massage: "DATA DELETED"})
     } catch (error){
         res.status(500).json({massage: "ERROR WHILE CREATING " + error})
