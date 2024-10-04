@@ -2,6 +2,7 @@ const mysql = require('mysql2/promise')
 
 const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client('913924371455-887ehm4755o1rnmdnfur3cc2abm5ub3a.apps.googleusercontent.com');
+const fs = require('fs')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -95,6 +96,9 @@ const userPhotoChange = async (req, res) => {
     try{
         const {user_id} = req.body
 
+        console.log(user_id)
+
+
         let filename;
 
         if (req.file) {
@@ -104,12 +108,16 @@ const userPhotoChange = async (req, res) => {
             filename = null
         }
 
+        console.log(filename)
+
         // получаем прошлое фото пользователя
-        const [[{photoPath}]] = await db.execute("SELECT imgPath FROM users WHERE id = ?", [user_id])
+        const [[{imgPath}]] = await db.execute("SELECT imgPath FROM users WHERE id = ?", [user_id])
         
+        console.log(imgPath)
+        console.log(fs.existsSync(imgPath))
         // удаляем фото пользователя если оно существует
-        if (photoPath !== null && fs.existsSync(photoPath)){
-            fs.unlink(photoPath, (err) => {
+        if (imgPath !== null && fs.existsSync(imgPath)){
+            fs.unlink(imgPath, (err) => {
                 if (err){
                     console.error(err)
                     res.status(500).json({massage: "Ошибка удаления файла"})
@@ -117,8 +125,12 @@ const userPhotoChange = async (req, res) => {
             })
         }
 
+        console.log('del')
+
         // добавляем название нового фото пользователя
         await db.execute('UPDATE users SET imgPath = (?) WHERE id = ?', [filename, user_id])
+
+        console.log("ADD PHOTO")
 
         // возможно тут отправлять обратно новый имг паз
         res.status(200).json({massage: 'DATA UPDATED'})

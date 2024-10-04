@@ -31,7 +31,6 @@ const createSuggest = async (req, res) => {
             filename = null
         }
 
-        console.log("INSERT")
         await db.execute("INSERT INTO suggest (user_id, content, name, photoPath, tags) VALUES (?, ?, ?, ?, ?)", [Number(user_id), content, name, filename, tagString])
 
         console.log("READY")
@@ -105,7 +104,3 @@ module.exports = {
     getSuggestById,
     deleteSuggest
 }
-
-// создание саггеста
-// получение одного саггеста
-// удаление саггеста

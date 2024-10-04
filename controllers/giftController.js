@@ -144,13 +144,12 @@ const getGiftsById = async(req, res) => {
         const id = req.params.gift_id
 
         // увеличиваем просмотры подарка на 1
-        await db.execute("UPDATE gift SET views = userViews + 1 WHERE id = ?", [gift_id]);
+        await db.execute("UPDATE gift SET userViews = userViews + 1 WHERE id = ?", [id]);
 
         const rows = await db.execute('SELECT * FROM gift WHERE id = (?)', [id])
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
         const newRows = objectStringIntoObjectMas(rows[0])
-
 
         res.status(200).json(newRows)
     } catch(error){
