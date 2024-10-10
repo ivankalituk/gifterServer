@@ -15,7 +15,7 @@ app.use(cors({
 app.use('/uploads', express.static('uploads'))
 
 // Контроллеры
-const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift, getGiftName} = require('./controllers/giftController')
+const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift, getGiftName, getRandomGift} = require('./controllers/giftController')
 const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
 const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, getUserById, userPhotoChange, getUserBio} = require('./controllers/userController')
@@ -61,6 +61,8 @@ app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получеп
 app.put('/gift', putGift)                                       //обновление подарка (не готово)
 app.delete('/gift/:gift_id', deleteGift)                        //удаление подарка по айди
 app.post('/gift/name', getGiftName)                             //получение имён подарков по части имени
+app.get('/gift-random', getRandomGift)                          //получение id рандомного подарка
+
 
 // CRUD для репорта
 app.post('/report', createReport)                               //создание репорта

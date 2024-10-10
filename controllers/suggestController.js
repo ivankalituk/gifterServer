@@ -14,12 +14,18 @@ const createSuggest = async (req, res) => {
     try {
         const {name, user_id, content, tagArray} = req.body
 
-        // массив из тегов переделать в строку тегов для занесения в бд
+        // если тагЭррей это массив тегов, то делаем из него строку
+        // если тагЭррей это строка, то в нём всего один тег
+        // если тагЭррей пустой, то будем класть в бд налл
         let tagString
-        if(tagArray){
+        if(tagArray && typeof(tagArray) !== 'string'){
             tagString = arrayIntoString(tagArray)
         } else {
-            tagString = null
+            if(typeof(tagArray) === 'string'){
+                tagString = tagArray
+            } else {
+                tagString = null
+            }
         }
 
         // если добавлено фото, то сохраняем файлнейм, если нет, то даём названию NULL

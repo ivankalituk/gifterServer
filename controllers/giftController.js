@@ -24,6 +24,8 @@ const createGift = async(req, res) => {
             // находим фото саггеста для удаления
             const [[{photoPath}]] = await db.execute("SELECT photoPath FROM suggest WHERE id = ?", [suggest_id])
 
+            console.log(photoPath)
+
             // удаляем фото саггеста если оно существует
             if (photoPath !== null && fs.existsSync(photoPath)){
                 fs.unlink(photoPath, (err) => {
@@ -33,6 +35,8 @@ const createGift = async(req, res) => {
                     }
                 })
             }
+
+            console.log('IMG DELETED')
 
             // удаляем саму запись саггеста
             await db.execute("DELETE FROM suggest WHERE id = ?", [suggest_id])
@@ -243,6 +247,18 @@ const getGiftName = async (req, res) => {
     }
 }
 
+// получить айди рандомного подарка
+const getRandomGift = async (req, res) => {
+    try{
+        const rows = await db.execute('SELECT id FROM gift ORDER BY RAND() LIMIT 1')
+
+        res.status(200).json(rows[0])
+    } catch (error){
+        res.status(500).json({massage: "ERROR WHITE GETING DATA " + error})
+    }
+}
+
+
 module.exports = {
     createGift,
     getAllGifts,
@@ -251,5 +267,6 @@ module.exports = {
     getGiftsByCreatorId,
     putGift,
     deleteGift,
-    getGiftName
+    getGiftName,
+    getRandomGift
 }
