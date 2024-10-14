@@ -16,12 +16,12 @@ app.use('/uploads', express.static('uploads'))
 
 // Контроллеры
 const {createGift, getAllGifts, getTagedGifts, getGiftsById, getGiftsByCreatorId, putGift, deleteGift, getGiftName, getRandomGift} = require('./controllers/giftController')
-const {createReport, getAllReports, getReportById, deleteReport} = require('./controllers/reportController')
+const {createReport, getAllReports, getReportById, deleteReport, deleteReportGift, getGiftByReport} = require('./controllers/reportController')
 const {createSuggest, getAllSuggests, getSuggestById, deleteSuggest} = require('./controllers/suggestController')
 const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChange, getUserById, userPhotoChange, getUserBio} = require('./controllers/userController')
 const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
-const {getAllBlackUsers, getBlackUsersEmail, getBlackUsers, removeUserFromBlacklist} = require('./controllers/blackListController')
-const {getAdminsByEmailFragment, getAdminsFullDataByEmail, adminLevelChange} = require('./controllers/adminController')
+const {getAllBlackUsers, getBlackUsersEmail, getBlackUsers, removeUserFromBlacklist, insertUserIntoBlacklist} = require('./controllers/blackListController')
+const {getAdminsByEmailFragment, getAdminsFullDataByEmail, adminLevelChange, insertAdmin} = require('./controllers/adminController')
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -69,6 +69,8 @@ app.post('/report', createReport)                               //создани
 app.get('/report', getAllReports)                               //получение всех репортов
 app.get('/report/:report_id', getReportById)                    //получение репорта по его айди
 app.delete('/report/:report_id', deleteReport)                  //удаление репорта
+app.delete('/report-gift', deleteReportGift)                    //удаление репорта и плдарка этого репорта
+app.get('/report/gift/:report_id', getGiftByReport)                        //получить подарок и репорт по айди репорта
 
 // CRUD для саггеста
 app.post('/suggest',upload.single('image'), createSuggest)      //создание саггеста
@@ -96,11 +98,13 @@ app.get('/blacklist', getAllBlackUsers)                         //получен
 app.post('/blacklist/email', getBlackUsersEmail)                //поиск емейла по фрагменту емейла
 app.post('/blacklist/users/email', getBlackUsers)               //отобразить пользователей по емейлу
 app.delete('/blacklist/user/:user_id', removeUserFromBlacklist) //отобразить пользователей по емейлу
+app.post('/blacklist-add', insertUserIntoBlacklist)    //добавить пользователя в блеклист
 
 // CRUD для списков админов
 app.post('/admins', getAdminsByEmailFragment)                   //получить админов по фрагменту почты
 app.post('/admins/email', getAdminsFullDataByEmail)             //получить админов по фрагменту почты
 app.put('/admins/leveling', adminLevelChange)                   //по операции - или + менять уровень админа (НЕ ПРОВЕРЯЛ)
+app.post('/admin', insertAdmin)                                 //добавить нового админа
 
 app.listen(port, '0.0.0.0', (error) => {
     if (error){

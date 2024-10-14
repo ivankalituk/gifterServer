@@ -73,9 +73,21 @@ const removeUserFromBlacklist = async(req, res) => {
     }
 }
 
+// добавить пользователя в чёрный список
+const insertUserIntoBlacklist= async(req, res) => {
+    try{
+        const {user_id} = req.body
+        await db.execute('INSERT INTO blacklist (user_id) VALUES (?)', [user_id])
+        res.status(200).json({message: "CREATED"})
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE GETING DATA " + error})
+    }
+}
+
 module.exports = {
     getAllBlackUsers,
     getBlackUsersEmail,
     getBlackUsers,
-    removeUserFromBlacklist
+    removeUserFromBlacklist,
+    insertUserIntoBlacklist
 }

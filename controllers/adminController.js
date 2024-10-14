@@ -81,8 +81,30 @@ const adminLevelChange = async(req, res) => {
     }
 }
 
+// добавление админа
+const insertAdmin = async(req, res) => {
+    try{
+
+        const {user_id} = req.body
+
+        console.log(user_id)
+        // добавление уровня 1 в админах
+        await db.execute('INSERT INTO admins (user_id, admin_level) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM admins WHERE user_id = ?)', [user_id, 1, user_id])
+        
+        console.log('insert admin level')
+        // добавление роли 1 в пользователе
+        await db.execute('UPDATE users SET role = ? WHERE id = ?', [1, user_id])
+
+        console.log('insert admin role')
+        res.status(200).json('CREATED');
+    } catch(error){
+        res.status(500).json({massege: "ERROR WHILE GETING DATA " + error})
+    }
+}
+
 module.exports = {
     getAdminsByEmailFragment,
     getAdminsFullDataByEmail,
-    adminLevelChange
+    adminLevelChange,
+    insertAdmin
 }

@@ -1,4 +1,5 @@
 const mysql = require('mysql2/promise')
+const { objectStringIntoObjectMas } = require('../utils/functions')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -51,9 +52,42 @@ const deleteReport = async (req, res) => {
     }
 }
 
+// удаление репорта и подарка
+const deleteReportGift = async (req, res) => {
+    try{
+        const {report_id, gift_id} = req.body
+
+        console.log(report_id, gift_id)
+        await db.execute('DELETE FROM report WHERE id = ?', [report_id])
+        console.log("rep executed")
+        await db.execute('DELETE FROM gift WHERE id = ?', [gift_id])
+        console.log("gift executed")
+        res.status(200).json({massage: "DATA DELETED"})
+    } catch (error){
+        res.status(500).json({massage: "ERROR WHILE CREATING " + error})
+    }
+}
+
+// получение подарка по айди репорта 
+const getGiftByReport = async (req, res) => {
+    try{
+        const report_id = req.params.report_id
+        const rows = await db.execute('SELECT * FROM gift g JOIN report r ON r.gift_id = g.id WHERE r.id = ?', [report_id])
+
+        // сделать теги массивом
+        const newRows = objectStringIntoObjectMas(rows[0])
+
+        res.status(200).json(newRows)
+    } catch (error){
+        res.status(500).json({massage: "ERROR WHILE CREATING " + error})
+    }
+}
+
 module.exports = {
     createReport,
     getAllReports,
     getReportById,
-    deleteReport
+    deleteReport,
+    deleteReportGift,
+    getGiftByReport
 }
