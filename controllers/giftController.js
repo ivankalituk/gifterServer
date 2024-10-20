@@ -188,14 +188,44 @@ const putGift = async(req, res) => {
 // апдейт рейтинга подарка (НЕ СДЕЛАНО)
 const putGiftReating = async(req, res) => {
     try{
-        const reating = 4.2
-        const appretiatiors = 5
 
-        // ДОБАВЛЕНИЕ НОВОЙ ОЦЕНКИ
-        // (4.2*5 + 5(новая оценка)) / 5+1(новый пользователь) = (новая оценка)
+        const {old_reating, new_Reating, gift_id, user_id} = req.body
+        
+        console.log(old_reating, new_Reating, gift_id, user_id)
 
-        // ПЕРЕОЦЕНИВАНИЕ
-        // (4.2*5 - 1(старая оценка) + 4(новая оценка)) / 5 = (новая оценка)
+        // // получаем колличество оценивших и оценку 
+        const [[{appreciators, reating}]] = await db.execute('SELECT appreciators, reating FROM gift WHERE id = ?', [gift_id])
+        
+        console.log(appreciators, reating)
+
+        let finalNewReating
+
+        // // если пользователь впервые оценивает подарок
+        if (old_reating === null){
+            console.log("OLD = NULL")
+            finalNewReating = ((appreciators * reating) + new_Reating) / (appreciators + 1)
+
+            // обновляем оценку
+            await db.execute('UPDATE gift SET appreciators = ?, reating = ? WHERE id = ?', [appreciators + 1, finalNewReating, gift_id]);
+
+            // добавляем новую запись в оценки пользователя
+            await db.execute('INSERT INTO reating (gift_id, user_id, mark) VALUES (?, ?, ?)', [gift_id, user_id, new_Reating])
+        } else {
+            // если пользователь меняет рейтинг
+            console.log("OLD = NUMBER")
+            finalNewReating = ((appreciators * reating) - old_reating) / (appreciators - 1)
+            finalNewReating = (((appreciators - 1) * finalNewReating) + new_Reating) / appreciators 
+
+            // обновлять рейтинг подарка
+            await db.execute('UPDATE gift SET reating = ? WHERE id = ?', [finalNewReating, gift_id]);
+
+            // обновлять запись оценки
+            await db.execute('UPDATE reating SET mark = ? WHERE user_id = ?', [new_Reating, user_id])
+        }
+
+        console.log(finalNewReating)
+
+        res.status(200).json({massage: "SUCCESS"})
 
     } catch(error){
         res.status(500).json({massage: "ERROR WHITE UPDATING DATA " + error})
@@ -268,5 +298,6 @@ module.exports = {
     putGift,
     deleteGift,
     getGiftName,
-    getRandomGift
+    getRandomGift,
+    putGiftReating
 }

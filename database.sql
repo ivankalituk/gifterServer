@@ -65,3 +65,11 @@ CREATE TABLE admins (
 
 -- тестовые данные
 INSERT INTO admins (user_id, admin_level) VALUES (1, 2)
+
+-- таблица рейтингов
+CREATE TABLE reating (
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    gift_id INT NOT NULL,
+    mark INT NOT NULL
+)
