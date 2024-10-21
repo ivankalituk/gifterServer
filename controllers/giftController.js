@@ -150,6 +150,7 @@ const getGiftsById = async(req, res) => {
         // увеличиваем просмотры подарка на 1
         await db.execute("UPDATE gift SET userViews = userViews + 1 WHERE id = ?", [id]);
 
+        // получении подарка объединяем его с рейтингом который выдал пользователь
         const rows = await db.execute('SELECT * FROM gift WHERE id = (?)', [id])
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
@@ -185,7 +186,7 @@ const putGift = async(req, res) => {
     }
 }
 
-// апдейт рейтинга подарка (НЕ СДЕЛАНО)
+// апдейт рейтинга подарка
 const putGiftReating = async(req, res) => {
     try{
 
@@ -201,7 +202,7 @@ const putGiftReating = async(req, res) => {
         let finalNewReating
 
         // // если пользователь впервые оценивает подарок
-        if (old_reating === null){
+        if (old_reating === 0){
             console.log("OLD = NULL")
             finalNewReating = ((appreciators * reating) + new_Reating) / (appreciators + 1)
 
@@ -213,8 +214,7 @@ const putGiftReating = async(req, res) => {
         } else {
             // если пользователь меняет рейтинг
             console.log("OLD = NUMBER")
-            finalNewReating = ((appreciators * reating) - old_reating) / (appreciators - 1)
-            finalNewReating = (((appreciators - 1) * finalNewReating) + new_Reating) / appreciators 
+            finalNewReating = ((appreciators * reating) - old_reating + new_Reating) / (appreciators)
 
             // обновлять рейтинг подарка
             await db.execute('UPDATE gift SET reating = ? WHERE id = ?', [finalNewReating, gift_id]);
@@ -288,6 +288,19 @@ const getRandomGift = async (req, res) => {
     }
 }
 
+const getUserGiftReating = async (req, res) =>{
+    try{
+        const {user_id, gift_id} = req.body
+
+        const [rows] = await db.execute('SELECT mark FROM reating WHERE user_id = ? AND gift_id = ?', [user_id, gift_id]);
+        const mark = rows.length > 0 ? rows[0].mark : 0;
+
+        res.status(200).json({mark: mark})
+
+    } catch(error){
+        res.status(500).json({massage: "ERROR"})
+    }
+}
 
 module.exports = {
     createGift,
@@ -299,5 +312,6 @@ module.exports = {
     deleteGift,
     getGiftName,
     getRandomGift,
-    putGiftReating
+    putGiftReating,
+    getUserGiftReating
 }
