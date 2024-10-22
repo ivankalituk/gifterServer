@@ -180,7 +180,32 @@ const getGiftsByCreatorId = async(req, res) => {
 // апдейт полей подарка (НЕ СДЕЛАНО)
 const putGift = async(req, res) => {
     try{
+        const {id, name, tags, report_id} = req.body
+        console.log(id, name, tags)
 
+        if(req.file){
+            console.log("FILE EXIST")
+            const {filename} = req.file
+            const [[{photoPath}]] = await db.execute('SELECT photoPath FROM gift WHERE id = ?', [id])
+            await db.execute('UPDATE gift SET name = ?, tags = ?, photoPath = ? WHERE id = ?', [name, tags.join(', '), 'uploads/' + filename, id]);
+
+            if (photoPath !== null && fs.existsSync(photoPath)){
+                fs.unlink(photoPath, (err) => {
+                    if (err){
+                        console.error(err)
+                        res.status(500).json({massage: "Ошибка удаления файла"})
+                    }
+                })
+            }
+        } else{
+            console.log("FILE NOT EXIST")
+            await db.execute('UPDATE gift SET name = ?, tags = ? WHERE id = ?', [name, tags.join(', '), id]);
+        }
+
+        await db.execute('DELETE FROM report WHERE id = ?', [report_id])
+
+        console.log("UPDATED")
+        res.status(200).json({massage: "SUCCESS"})
     } catch(error){
         res.status(500).json({massage: "ERROR WHITE UPDATING DATA " + error})
     }
@@ -190,9 +215,9 @@ const putGift = async(req, res) => {
 const putGiftReating = async(req, res) => {
     try{
 
-        const {old_reating, new_Reating, gift_id, user_id} = req.body
+        const {old_reating, new_Reating, gift_id, user_id, suggest_id} = req.body
         
-        console.log(old_reating, new_Reating, gift_id, user_id)
+        console.log(old_reating, new_Reating, gift_id, user_id, suggest_id)
 
         // // получаем колличество оценивших и оценку 
         const [[{appreciators, reating}]] = await db.execute('SELECT appreciators, reating FROM gift WHERE id = ?', [gift_id])

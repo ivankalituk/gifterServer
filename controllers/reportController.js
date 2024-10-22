@@ -1,5 +1,6 @@
 const mysql = require('mysql2/promise')
 const { objectStringIntoObjectMas } = require('../utils/functions')
+const fs = require('fs')
 
 const db = mysql.createPool({
     host: 'localhost',
@@ -52,16 +53,30 @@ const deleteReport = async (req, res) => {
     }
 }
 
-// удаление репорта и подарка
+// удаление репорта и подарка 
 const deleteReportGift = async (req, res) => {
     try{
         const {report_id, gift_id} = req.body
 
-        console.log(report_id, gift_id)
-        await db.execute('DELETE FROM report WHERE id = ?', [report_id])
-        console.log("rep executed")
+        const [[{photoPath}]] = await db.execute('SELECT photoPath FROM gift WHERE id = ?', [gift_id])
+
+        console.log(photoPath)
+
+        if (photoPath !== null && fs.existsSync(photoPath)){
+            console.log('EXISTED')
+            fs.unlink(photoPath, (err) => {
+                if (err){
+                    console.error(err)
+                    res.status(500).json({massage: "Ошибка удаления файла"})
+                }
+            })
+        }
+
+        console.log("IMG DELETED")
+
+        await db.execute('DELETE FROM report WHERE gift_id = ?', [gift_id])
+        
         await db.execute('DELETE FROM gift WHERE id = ?', [gift_id])
-        console.log("gift executed")
         res.status(200).json({massage: "DATA DELETED"})
     } catch (error){
         res.status(500).json({massage: "ERROR WHILE CREATING " + error})

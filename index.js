@@ -58,7 +58,7 @@ app.get('/gift', getAllGifts)                                   //получен
 app.post('/gift/tags', getTagedGifts)                           //получение подарков по тегам
 app.get('/gift/:gift_id', getGiftsById)                         //получение подарка по его айди
 app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получепние подарка по айди его создателя
-app.put('/gift', putGift)                                       //обновление подарка (не готово)
+app.put('/gift', upload.single('image'), putGift)               //обновление подарка (не готово)
 app.delete('/gift/:gift_id', deleteGift)                        //удаление подарка по айди
 app.post('/gift/name', getGiftName)                             //получение имён подарков по части имени
 app.get('/gift-random', getRandomGift)                          //получение id рандомного подарка
