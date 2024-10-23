@@ -37,7 +37,7 @@ const getUserData = async(req, res) => {
         // если почта была зарегестрированна, то получаем данные, если нет - то создаём и получаем их
         if(userInfo.nickname !== null){
 
-            let rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
+            let rows = await db.execute(' SELECT users.*, CASE WHEN blacklist.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS blocked FROM users LEFT JOIN blacklist ON users.id = blacklist.user_id WHERE users.email = ?', [userInfo.email])
 
             if(rows[0].length === 0){
                 await db.execute('INSERT INTO users (nickname, imgPath, role, email) VALUES (?, ?, ?, ?)', [userInfo.name, userInfo.picture, 0, userInfo.email])
