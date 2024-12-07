@@ -63,7 +63,7 @@ const adminLevelChange = async(req, res) => {
 
         // если уровень админа = 1, то мы снимаем с него админку, если больше 1, то понижаем на 1
         if (operation === '-'){
-            await db.execute(`UPDATE users SET role = 0 WHERE id = ? AND EXISTS (SELECT 1 FROM admins WHERE user_id = ? AND admin_level = 1);`, [user_id, user_id]);
+            // await db.execute(`UPDATE users SET role = 0 WHERE id = ? AND EXISTS (SELECT 1 FROM admins WHERE user_id = ? AND admin_level = 1);`, [user_id, user_id]);
         
             // Удаляем запись в admins, если admin_level равен 1
             await db.execute(`DELETE FROM admins WHERE admin_level = 1 AND user_id = ?;`, [user_id]);
@@ -92,8 +92,8 @@ const insertAdmin = async(req, res) => {
         await db.execute('INSERT INTO admins (user_id, admin_level) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM admins WHERE user_id = ?)', [user_id, 1, user_id])
         
         console.log('insert admin level')
-        // добавление роли 1 в пользователе
-        await db.execute('UPDATE users SET role = ? WHERE id = ?', [1, user_id])
+        // добавление роли 1 в пользователе (НЕ ДОБАВЛЯЕМ РОЛЬ В ЮЗЕР)
+        // await db.execute('UPDATE users SET role = ? WHERE id = ?', [1, user_id])
 
         console.log('insert admin role')
         res.status(200).json('CREATED');

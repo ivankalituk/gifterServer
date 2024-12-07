@@ -28,6 +28,7 @@ const getGoogleData = async (access_token) => {
 }
 
 // получение данных по токену
+// (ЗАМЕНИТЬ, ДОБАВИТЬ БЛОКИРОВКУ И РОЛЬ ПОЛЬЗОВАТЕЛЯ, ДОБАВЛЯТЬ ЕЁ ИМЕННО ЧЕРЕЗ ОБЪЕДИНЕНИЕ)
 const getUserData = async(req, res) => {
     try{        
         const {access_token} = req.body
@@ -37,22 +38,83 @@ const getUserData = async(req, res) => {
         // если почта была зарегестрированна, то получаем данные, если нет - то создаём и получаем их
         if(userInfo.nickname !== null){
 
-            let rows = await db.execute(' SELECT users.*, CASE WHEN blacklist.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS blocked FROM users LEFT JOIN blacklist ON users.id = blacklist.user_id WHERE users.email = ?', [userInfo.email])
+            // добавить роль и статус блеклист
+            // let rows = await db.execute(' SELECT users.*, CASE WHEN blacklist.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS blocked FROM users LEFT JOIN blacklist ON users.id = blacklist.user_id WHERE users.email = ?', [userInfo.email])
+            // let rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
+            let rows = await db.execute(
+            `SELECT 
+                u.*,
+                CASE 
+                    WHEN bl.user_id IS NOT NULL THEN TRUE 
+                    ELSE FALSE 
+                END AS blocked,
+                COALESCE(adm.admin_level, 0) AS role
+            FROM 
+                users u
+            LEFT JOIN 
+                blacklist bl ON u.id = bl.user_id
+            LEFT JOIN
+                admins adm ON u.id = adm.user_id
+            WHERE 
+                u.email = ?`, [userInfo.email])
 
             if(rows[0].length === 0){
-                await db.execute('INSERT INTO users (nickname, imgPath, role, email) VALUES (?, ?, ?, ?)', [userInfo.name, userInfo.picture, 0, userInfo.email])
-                rows = await db.execute('SELECT * FROM users WHERE email = ?', [userInfo.email])
+                await db.execute('INSERT INTO users (nickname, imgPath, email) VALUES (?, ?, ?, ?)', [userInfo.name, userInfo.picture, userInfo.email])
+
+                // тут добавить блеклист и уровень роли, как и в прошлом
+                rows = await db.execute(
+                    `SELECT 
+                        u.*,
+                        CASE 
+                            WHEN bl.user_id IS NOT NULL THEN TRUE 
+                            ELSE FALSE 
+                        END AS blocked,
+                        COALESCE(adm.admin_level, 0) AS role
+                    FROM 
+                        users u
+                    LEFT JOIN 
+                        blacklist bl ON u.id = bl.user_id
+                    LEFT JOIN
+                        admins adm ON u.id = adm.user_id
+                    WHERE 
+                        u.email = ?`, [userInfo.email])
             }
 
             res.status(200).json(rows[0])
         } else {
-            res.status(200).json([{id: null, nickname: null, imgPath: null, role: null, email: null}])
+            res.status(200).json([{id: null, nickname: null, imgPath: null, role: null, blacklist: null, email: null}])
         }
 
     } catch(error){
         res.status(500).json({massege: "ERROR WHILE GETING DATA " + error})
     }
+}
 
+// получение пользователя по его айди
+const getUserById = async (req, res) => {
+    try {
+        const user_id = req.params.user_id;
+        // добавить блеклист и уровень роли
+        const rows = await db.execute(`SELECT 
+                        u.*,
+                        CASE 
+                            WHEN bl.user_id IS NOT NULL THEN TRUE 
+                            ELSE FALSE 
+                        END AS blocked,
+                        COALESCE(adm.admin_level, 0) AS role
+                    FROM 
+                        users u
+                    LEFT JOIN 
+                        blacklist bl ON u.id = bl.user_id
+                    LEFT JOIN
+                        admins adm ON u.id = adm.user_id
+                    WHERE 
+                        u.id = ?`, [user_id]);
+
+        res.status(200).json(rows[0]);
+    } catch (error) {
+        res.status(500).json({ message: "ERROR WHILE GETTING DATA " + error });
+    }
 }
 
 // смена ника
@@ -164,18 +226,6 @@ const getUserBio = async (req, res) => {
         const user_id = req.params.user_id;
         
         const rows = await db.execute('SELECT bio FROM users WHERE id = ?', [user_id]);
-
-        res.status(200).json(rows[0]);
-    } catch (error) {
-        res.status(500).json({ message: "ERROR WHILE GETTING DATA " + error });
-    }
-}
-
-// получение пользователя по его айди
-const getUserById = async (req, res) => {
-    try {
-        const user_id = req.params.user_id;
-        const rows = await db.execute('SELECT * FROM users WHERE id = ?', [user_id]);
 
         res.status(200).json(rows[0]);
     } catch (error) {
