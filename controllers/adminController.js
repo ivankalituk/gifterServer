@@ -11,7 +11,7 @@ const db = mysql.createPool({
 })
 
 
-// получить похожие почты админов по фрагменту почты
+// получить похожие почты админов по фрагменту почты (для поиска админа по почте)
 const getAdminsByEmailFragment = async(req, res) => {
     try{
         const { email } = req.body;
@@ -21,7 +21,7 @@ const getAdminsByEmailFragment = async(req, res) => {
             return res.status(200).json([])
         }
 
-        const rows = await db.execute('SELECT email FROM users WHERE role = ? AND email LIKE ? LIMIT 5', [1, `%${email}%`])
+        const rows = await db.execute('SELECT * FROM users u JOIN admins a ON u.id = a.user_id AND u.email LIKE ? LIMIT 5', [`%${email}%`])
 
         // меняем ключи email на text
         const updatedRows = rows[0].map(row => {
@@ -43,12 +43,12 @@ const getAdminsByEmailFragment = async(req, res) => {
     }
 }
 
-// отображение инфорации админов по почте либо фрагменту почты
+// отображение инфорации админов по почте либо фрагменту почты (получение всего списка админов по почте)
 const getAdminsFullDataByEmail = async(req, res) => {
     try{
         const {email} = req.body
 
-        const rows = await db.execute('SELECT * FROM users u JOIN admins a ON a.user_id = u.id WHERE role = ? AND email LIKE ?', [1, `%${email}%`]);
+        const rows = await db.execute('SELECT * FROM users u JOIN admins a ON u.id = a.user_id AND u.email LIKE ?', [`%${email}%`]);
 
         res.status(200).json(rows[0])
     } catch(error){
@@ -62,9 +62,7 @@ const adminLevelChange = async(req, res) => {
         const {operation, user_id} = req.body
 
         // если уровень админа = 1, то мы снимаем с него админку, если больше 1, то понижаем на 1
-        if (operation === '-'){
-            // await db.execute(`UPDATE users SET role = 0 WHERE id = ? AND EXISTS (SELECT 1 FROM admins WHERE user_id = ? AND admin_level = 1);`, [user_id, user_id]);
-        
+        if (operation === '-'){       
             // Удаляем запись в admins, если admin_level равен 1
             await db.execute(`DELETE FROM admins WHERE admin_level = 1 AND user_id = ?;`, [user_id]);
         
