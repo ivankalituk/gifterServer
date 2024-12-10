@@ -22,7 +22,7 @@ const {getUserData, userNicknameChange, userBioChange, getUserTags, userTagsChan
 const {craeteTag, getAllTags, getTagByInput} = require('./controllers/tagsController')
 const {getAllBlackUsers, getBlackUsersEmail, getBlackUsers, removeUserFromBlacklist, insertUserIntoBlacklist} = require('./controllers/blackListController')
 const {getAdminsByEmailFragment, getAdminsFullDataByEmail, adminLevelChange, insertAdmin} = require('./controllers/adminController')
-const {removeBookMark, addBookMark, getAllBookmarksByUserId} = require('./controllers/bookmarkController')
+const {removeBookMark, addBookMark, getAllBookmarksByUserId, toggleBookMark} = require('./controllers/bookmarkController')
 
 // генератор уникальных названий файлов мультера
 const storage = multer.diskStorage({
@@ -112,7 +112,9 @@ app.post('/admin', insertAdmin)                                 //добавит
 app.get('/bookmarks', getAllBookmarksByUserId)                  //получение всех закладок пользователя
 app.post('/bookmark/add', addBookMark)                          //добавление закладки
 app.post('/bookmark/remove', removeBookMark)                    //удаление закладки
+app.post('/bookmark/toggle', toggleBookMark)  
 
+toggleBookMark
 
 app.listen(port, '0.0.0.0', (error) => {
     if (error){

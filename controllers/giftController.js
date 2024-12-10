@@ -78,10 +78,10 @@ const getAllGifts = async(req, res) => {
     }
 }
 
-// получение всех подарков по тегам
+// получение всех подарков по тегам (также есть дополнение каждого подарка полем marked, если пользователь его отметил для себя)
 const getTagedGifts = async(req, res) => {
     try{
-        const {tags, sort, byName} = req.body
+        const {tags, sort, byName, user_id} = req.body
 
         // сортировка
         let sorting
@@ -112,14 +112,14 @@ const getTagedGifts = async(req, res) => {
                 FROM 
                     gift g
                 LEFT JOIN 
-                    bookmark b 
+                    bookmarks b 
                 ON 
                     g.id = b.gift_id AND b.user_id = 1
                 WHERE 
                     ${tagQuery} AND g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
-            `, [1, `%${byName}%`]);
+            `, [user_id, `%${byName}%`]);
             
 
                     // Проверяем, что rows[0] существует и является массивом
@@ -148,14 +148,14 @@ const getTagedGifts = async(req, res) => {
                 FROM 
                     gift g
                 LEFT JOIN 
-                    bookmark b 
+                    bookmarks b 
                 ON 
                     g.id = b.gift_id AND b.user_id = 1
                 WHERE 
                     g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
-            `, [1, `%${byName}%`]);
+            `, [user_id, `%${byName}%`]);
             
 
                 // Проверяем, что rows[0] существует и является массивом

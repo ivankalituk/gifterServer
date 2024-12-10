@@ -52,8 +52,29 @@ const removeBookMark = async(req, res) => {
     }
 }
 
+// тогл статуса закладки
+const toggleBookMark = async(req, res) => {
+    try{
+
+        const {user_id, gift_id} = req.body
+
+        // если он был отмечен, то удаляем его отметку, если не был отмечен, то добавляем
+        const [exist] = await db.execute('SELECT 1 FROM bookmarks WHERE user_id = ? AND gift_id = ?', [user_id, gift_id])
+
+        if (exist.length > 0){
+            await db.execute('DELETE FROM bookmarks WHERE user_id = ? AND gift_id = ?', [user_id, gift_id])
+        } else {
+            await db.execute('INSERT INTO bookmarks (user_id, gift_id) VALUES (?, ?)', [user_id, gift_id])
+        }
+        res.status(200).json({message: "SUCCESS"})
+    } catch (error){
+        res.status(500).json({massege: "ERROR WHILE UPDATING DATA " + error})
+    }
+}
+
 module.exports = {
     removeBookMark,
     addBookMark,
-    getAllBookmarksByUserId
+    getAllBookmarksByUserId,
+    toggleBookMark
 }
