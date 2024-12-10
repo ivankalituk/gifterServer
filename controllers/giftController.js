@@ -67,18 +67,7 @@ const createGift = async(req, res) => {
 // получение всех подарков
 const getAllGifts = async(req, res) => {
     try{
-        const rows = await db.execute(`SELECT 
-                g.*, 
-                CASE 
-                    WHEN b.gift_id IS NOT NULL AND b.user_id = 1 THEN TRUE 
-                    ELSE FALSE 
-                END AS marked
-            FROM 
-                gift g
-            LEFT JOIN 
-                bookmark b 
-            ON 
-        g.id = b.gift_id AND b.user_id = 1;`)
+        const rows = await db.execute(`Select * from gift`)
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
         const newRows = objectStringIntoObjectMas(rows[0])
@@ -113,7 +102,25 @@ const getTagedGifts = async(req, res) => {
             const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
 
             // если поиск по слову
-            const rows = await db.execute(`SELECT * FROM gift WHERE ${tagQuery} AND name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`]);  
+            const rows = await db.execute(`
+                SELECT 
+                    g.*, 
+                    CASE 
+                        WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
+                        ELSE FALSE 
+                    END AS marked
+                FROM 
+                    gift g
+                LEFT JOIN 
+                    bookmark b 
+                ON 
+                    g.id = b.gift_id AND b.user_id = 1
+                WHERE 
+                    ${tagQuery} AND g.name LIKE ?
+                ORDER BY 
+                    ${sorting} DESC
+            `, [1, `%${byName}%`]);
+            
 
                     // Проверяем, что rows[0] существует и является массивом
                 if (Array.isArray(rows[0])) {
@@ -131,9 +138,27 @@ const getTagedGifts = async(req, res) => {
             res.status(200).json(rows[0])
 
         } else {
-            const rows = await db.execute(`SELECT * FROM gift WHERE name LIKE ? ORDER BY ${sorting} DESC`, [`%${byName}%`])
+            const rows = await db.execute(`
+                SELECT 
+                    g.*, 
+                    CASE 
+                        WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
+                        ELSE FALSE 
+                    END AS marked
+                FROM 
+                    gift g
+                LEFT JOIN 
+                    bookmark b 
+                ON 
+                    g.id = b.gift_id AND b.user_id = 1
+                WHERE 
+                    g.name LIKE ?
+                ORDER BY 
+                    ${sorting} DESC
+            `, [1, `%${byName}%`]);
+            
 
-                    // Проверяем, что rows[0] существует и является массивом
+                // Проверяем, что rows[0] существует и является массивом
                 if (Array.isArray(rows[0])) {
                     // Обрабатываем каждый объект в массиве rows[0]
                     rows[0] = rows[0].map(item => {
