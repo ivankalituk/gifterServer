@@ -67,7 +67,18 @@ const createGift = async(req, res) => {
 // получение всех подарков
 const getAllGifts = async(req, res) => {
     try{
-        const rows = await db.execute("SELECT * FROM gift")
+        const rows = await db.execute(`SELECT 
+                g.*, 
+                CASE 
+                    WHEN b.gift_id IS NOT NULL AND b.user_id = 1 THEN TRUE 
+                    ELSE FALSE 
+                END AS marked
+            FROM 
+                gift g
+            LEFT JOIN 
+                bookmark b 
+            ON 
+        g.id = b.gift_id AND b.user_id = 1;`)
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
         const newRows = objectStringIntoObjectMas(rows[0])
