@@ -114,12 +114,12 @@ const getTagedGifts = async(req, res) => {
                 LEFT JOIN 
                     bookmarks b 
                 ON 
-                    g.id = b.gift_id AND b.user_id = 1
+                    g.id = b.gift_id AND b.user_id = ?
                 WHERE 
                     ${tagQuery} AND g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
-            `, [user_id, `%${byName}%`]);
+            `, [user_id, user_id, `%${byName}%`]);
             
 
                     // Проверяем, что rows[0] существует и является массивом
@@ -150,12 +150,12 @@ const getTagedGifts = async(req, res) => {
                 LEFT JOIN 
                     bookmarks b 
                 ON 
-                    g.id = b.gift_id AND b.user_id = 1
+                    g.id = b.gift_id AND b.user_id = ?
                 WHERE 
                     g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
-            `, [user_id, `%${byName}%`]);
+            `, [user_id, user_id, `%${byName}%`]);
             
 
                 // Проверяем, что rows[0] существует и является массивом
