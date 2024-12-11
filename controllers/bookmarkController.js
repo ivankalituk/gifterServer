@@ -11,11 +11,35 @@ const db = mysql.createPool({
 })
 
 // получение всех закладок пользователя по его айди
+// ДОБАВИТЬ САМИ БУКМАРКИ
 const getAllBookmarksByUserId = async(req, res) => {
     try{
         const user_id = req.params.user_id;
 
-        const rows = await db.execute('SELECT g.*, bm.addDate AS bookmarkDate FROM bookmarks bm INNER JOIN gift g ON bm.gift_id = g.id WHERE bm.user_id = ? ORDER BY bookmarkDate', [user_id])
+        let rows = await db.execute(`
+        SELECT g.*, bm.addDate AS bookmarkDate,
+            CASE WHEN bm.gift_id IS NOT NULL AND bm.user_id = ?
+            THEN TRUE
+            ELSE FALSE
+            END AS marked
+        FROM bookmarks bm 
+        INNER JOIN gift g ON bm.gift_id = g.id
+        WHERE bm.user_id = ?
+        ORDER BY bookmarkDate`
+, [user_id, user_id])
+
+        // Проверяем, что rows[0] существует и является массивом
+        if (Array.isArray(rows[0])) {
+            // Обрабатываем каждый объект в массиве rows[0]
+            rows[0] = rows[0].map(item => {
+                // Если в объекте есть поле tags и это строка
+                if (item.tags && typeof item.tags === 'string') {
+                    // Разделяем строку по запятой и пробелу на массив
+                    item.tags = item.tags.split(',').map(tag => tag.trim());
+                }
+                return item;
+            });
+        }
 
         res.status(200).json(rows[0])
 

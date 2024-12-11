@@ -58,7 +58,7 @@ app.post('/gift', upload.single('image'), createGift)           //создани
 app.get('/gift', getAllGifts)                                   //получение всех подарков
 app.post('/gift/tags', getTagedGifts)                           //получение подарков по тегам
 app.get('/gift/:gift_id', getGiftsById)                         //получение подарка по его айди
-app.get('/gift/creator/:creator_id', getGiftsByCreatorId)       //получепние подарка по айди его создателя
+app.get('/gift/creator/:creator_id/:user_id', getGiftsByCreatorId)       //получепние подарка по айди его создателя
 app.put('/gift', upload.single('image'), putGift)               //обновление подарка (не готово)
 app.delete('/gift/:gift_id', deleteGift)                        //удаление подарка по айди
 app.post('/gift/name', getGiftName)                             //получение имён подарков по части имени
@@ -109,7 +109,7 @@ app.put('/admins/leveling', adminLevelChange)                   //по опер�
 app.post('/admin', insertAdmin)                                 //добавить нового админа
 
 // CRUN для закладок
-app.get('/bookmarks', getAllBookmarksByUserId)                  //получение всех закладок пользователя
+app.get('/bookmarks/:user_id', getAllBookmarksByUserId)                  //получение всех закладок пользователя
 app.post('/bookmark/add', addBookMark)                          //добавление закладки
 app.post('/bookmark/remove', removeBookMark)                    //удаление закладки
 app.post('/bookmark/toggle', toggleBookMark)  

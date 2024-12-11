@@ -199,10 +199,20 @@ const getGiftsById = async(req, res) => {
 }
 
 // получение подарка по айди создателя
+// ДОБАВИТЬ МАРКИРОВКУ
 const getGiftsByCreatorId = async(req, res) => {
     try{
+        const user_id = req.params.user_id
         const creator_id = req.params.creator_id
-        const rows = await db.execute('SELECT * FROM gift WHERE creatorId = (?)', [creator_id])
+        const rows = await db.execute(`
+            SELECT g.*,
+            CASE
+                WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE
+                ELSE FALSE
+                END AS marked
+            FROM gift g
+            LEFT JOIN bookmarks b ON g.id = b.gift_id
+            WHERE creatorId = ?`, [user_id, creator_id])
 
         // переводим строку тегов в массив тегов для каждого элемента-объекта массива ответов
         const newRows = objectStringIntoObjectMas(rows[0])
@@ -213,7 +223,7 @@ const getGiftsByCreatorId = async(req, res) => {
     }
 }
 
-// апдейт полей подарка (НЕ СДЕЛАНО)
+// апдейт полей подарка
 const putGift = async(req, res) => {
     try{
         const {id, name, tags, report_id} = req.body
