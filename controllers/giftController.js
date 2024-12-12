@@ -81,7 +81,7 @@ const getAllGifts = async(req, res) => {
 // получение всех подарков по тегам (также есть дополнение каждого подарка полем marked, если пользователь его отметил для себя)
 const getTagedGifts = async(req, res) => {
     try{
-        const {tags, sort, byName, user_id} = req.body
+        const {tags, sort, byName, user_id, page} = req.body
 
         // сортировка
         let sorting
@@ -119,6 +119,8 @@ const getTagedGifts = async(req, res) => {
                     ${tagQuery} AND g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
+                LIMIT 9
+                OFFSET ${page*9}
             `, [user_id, user_id, `%${byName}%`]);
             
 
@@ -155,6 +157,8 @@ const getTagedGifts = async(req, res) => {
                     g.name LIKE ?
                 ORDER BY 
                     ${sorting} DESC
+                LIMIT 9
+                OFFSET ${page*9}
             `, [user_id, user_id, `%${byName}%`]);
             
 
