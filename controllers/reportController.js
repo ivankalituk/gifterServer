@@ -60,10 +60,7 @@ const deleteReportGift = async (req, res) => {
 
         const [[{photoPath}]] = await db.execute('SELECT photoPath FROM gift WHERE id = ?', [gift_id])
 
-        console.log(photoPath)
-
         if (photoPath !== null && fs.existsSync(photoPath)){
-            console.log('EXISTED')
             fs.unlink(photoPath, (err) => {
                 if (err){
                     console.error(err)
@@ -71,8 +68,6 @@ const deleteReportGift = async (req, res) => {
                 }
             })
         }
-
-        console.log("IMG DELETED")
 
         await db.execute('DELETE FROM report WHERE gift_id = ?', [gift_id])
         

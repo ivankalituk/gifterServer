@@ -39,7 +39,6 @@ const createSuggest = async (req, res) => {
 
         await db.execute("INSERT INTO suggest (user_id, content, name, photoPath, tags) VALUES (?, ?, ?, ?, ?)", [Number(user_id), content, name, filename, tagString])
 
-        console.log("READY")
         res.status(200).json({ message: "DATA ADDED" });
     } catch (error) {
       res.status(500).json({ message: "ERROR WHILE CREATING " + error });

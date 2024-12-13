@@ -13,7 +13,6 @@ const db = mysql.createPool({
 const createGift = async(req, res) => {
     try{
         const {name, creator_id, admin_id, tags, imagePath, suggest_id} = req.body
-        console.log(name, creator_id, admin_id, tags, imagePath, suggest_id)
 
         // если в запросе был передан файл, то мы его добавляем в нашу запись
         // если файла нет, то фото из саггеста было оставлено для добавления в запись
@@ -24,8 +23,6 @@ const createGift = async(req, res) => {
             // находим фото саггеста для удаления
             const [[{photoPath}]] = await db.execute("SELECT photoPath FROM suggest WHERE id = ?", [suggest_id])
 
-            console.log(photoPath)
-
             // удаляем фото саггеста если оно существует
             if (photoPath !== null && fs.existsSync(photoPath)){
                 fs.unlink(photoPath, (err) => {
@@ -35,8 +32,6 @@ const createGift = async(req, res) => {
                     }
                 })
             }
-
-            console.log('IMG DELETED')
 
             // удаляем саму запись саггеста
             await db.execute("DELETE FROM suggest WHERE id = ?", [suggest_id])
@@ -236,10 +231,8 @@ const getGiftsByCreatorId = async(req, res) => {
 const putGift = async(req, res) => {
     try{
         const {id, name, tags, report_id} = req.body
-        console.log(id, name, tags)
 
         if(req.file){
-            console.log("FILE EXIST")
             const {filename} = req.file
             const [[{photoPath}]] = await db.execute('SELECT photoPath FROM gift WHERE id = ?', [id])
             await db.execute('UPDATE gift SET name = ?, tags = ?, photoPath = ? WHERE id = ?', [name, tags.join(', '), 'uploads/' + filename, id]);
@@ -253,13 +246,11 @@ const putGift = async(req, res) => {
                 })
             }
         } else{
-            console.log("FILE NOT EXIST")
             await db.execute('UPDATE gift SET name = ?, tags = ? WHERE id = ?', [name, tags.join(', '), id]);
         }
 
         await db.execute('DELETE FROM report WHERE id = ?', [report_id])
 
-        console.log("UPDATED")
         res.status(200).json({massage: "SUCCESS"})
     } catch(error){
         res.status(500).json({massage: "ERROR WHITE UPDATING DATA " + error})
@@ -271,19 +262,14 @@ const putGiftReating = async(req, res) => {
     try{
 
         const {old_reating, new_Reating, gift_id, user_id, suggest_id} = req.body
-        
-        console.log(old_reating, new_Reating, gift_id, user_id, suggest_id)
 
         // // получаем колличество оценивших и оценку 
         const [[{appreciators, reating}]] = await db.execute('SELECT appreciators, reating FROM gift WHERE id = ?', [gift_id])
-        
-        console.log(appreciators, reating)
 
         let finalNewReating
 
         // // если пользователь впервые оценивает подарок
         if (old_reating === 0){
-            console.log("OLD = NULL")
             finalNewReating = ((appreciators * reating) + new_Reating) / (appreciators + 1)
 
             // обновляем оценку
@@ -293,7 +279,6 @@ const putGiftReating = async(req, res) => {
             await db.execute('INSERT INTO reating (gift_id, user_id, mark) VALUES (?, ?, ?)', [gift_id, user_id, new_Reating])
         } else {
             // если пользователь меняет рейтинг
-            console.log("OLD = NUMBER")
             finalNewReating = ((appreciators * reating) - old_reating + new_Reating) / (appreciators)
 
             // обновлять рейтинг подарка
@@ -302,8 +287,6 @@ const putGiftReating = async(req, res) => {
             // обновлять запись оценки
             await db.execute('UPDATE reating SET mark = ? WHERE user_id = ?', [new_Reating, user_id])
         }
-
-        console.log(finalNewReating)
 
         res.status(200).json({massage: "SUCCESS"})
 

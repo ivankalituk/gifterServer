@@ -158,9 +158,6 @@ const userPhotoChange = async (req, res) => {
     try{
         const {user_id} = req.body
 
-        console.log(user_id)
-
-
         let filename;
 
         if (req.file) {
@@ -170,13 +167,9 @@ const userPhotoChange = async (req, res) => {
             filename = null
         }
 
-        console.log(filename)
-
         // получаем прошлое фото пользователя
         const [[{imgPath}]] = await db.execute("SELECT imgPath FROM users WHERE id = ?", [user_id])
         
-        console.log(imgPath)
-        console.log(fs.existsSync(imgPath))
         // удаляем фото пользователя если оно существует
         if (imgPath !== null && fs.existsSync(imgPath)){
             fs.unlink(imgPath, (err) => {
@@ -187,12 +180,8 @@ const userPhotoChange = async (req, res) => {
             })
         }
 
-        console.log('del')
-
         // добавляем название нового фото пользователя
         await db.execute('UPDATE users SET imgPath = (?) WHERE id = ?', [filename, user_id])
-
-        console.log("ADD PHOTO")
 
         // возможно тут отправлять обратно новый имг паз
         res.status(200).json({massage: 'DATA UPDATED'})
