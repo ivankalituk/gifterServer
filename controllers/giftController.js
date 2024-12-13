@@ -99,28 +99,30 @@ const getTagedGifts = async(req, res) => {
 
         // получение результатов
         if (tags.length > 0){
-            const tagQuery = tags.map(tag => `tags LIKE '%${tag}%'`).join(' AND ');
+            const tagQuery = tags.map(tag => `g.tags LIKE '%${tag}%'`).join(' AND ');
 
             // если поиск по слову
             const rows = await db.execute(`
-                SELECT 
-                    g.*, 
-                    CASE 
-                        WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
-                        ELSE FALSE 
-                    END AS marked
-                FROM 
-                    gift g
-                LEFT JOIN 
-                    bookmarks b 
-                ON 
-                    g.id = b.gift_id AND b.user_id = ?
-                WHERE 
-                    ${tagQuery} AND g.name LIKE ?
-                ORDER BY 
-                    ${sorting} DESC
+                SELECT *
+                FROM(
+                    SELECT 
+                        g.*, 
+                        CASE 
+                            WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
+                            ELSE FALSE 
+                        END AS marked
+                    FROM 
+                        gift g
+                    LEFT JOIN 
+                        bookmarks b 
+                    ON 
+                        g.id = b.gift_id AND b.user_id = ?
+                    WHERE 
+                        ${tagQuery} AND g.name LIKE ?
+                    ORDER BY 
+                        ${sorting} DESC) AS result
                 LIMIT 9
-                OFFSET ${page*9}
+                OFFSET ${(page-1)*9}
             `, [user_id, user_id, `%${byName}%`]);
             
 
@@ -141,24 +143,27 @@ const getTagedGifts = async(req, res) => {
 
         } else {
             const rows = await db.execute(`
-                SELECT 
-                    g.*, 
-                    CASE 
-                        WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
-                        ELSE FALSE 
-                    END AS marked
-                FROM 
-                    gift g
-                LEFT JOIN 
-                    bookmarks b 
-                ON 
-                    g.id = b.gift_id AND b.user_id = ?
-                WHERE 
-                    g.name LIKE ?
-                ORDER BY 
-                    ${sorting} DESC
+                SELECT * 
+                FROM (
+                    SELECT 
+                        g.*, 
+                        CASE 
+                            WHEN b.gift_id IS NOT NULL AND b.user_id = ? THEN TRUE 
+                            ELSE FALSE 
+                        END AS marked
+                    FROM 
+                        gift g
+                    LEFT JOIN 
+                        bookmarks b 
+                    ON 
+                        g.id = b.gift_id AND b.user_id = ?
+                    WHERE 
+                        g.name LIKE ?
+                    ORDER BY 
+                        ${sorting} DESC
+                ) AS result
                 LIMIT 9
-                OFFSET ${page*9}
+                OFFSET ${(page-1)*9}
             `, [user_id, user_id, `%${byName}%`]);
             
 
